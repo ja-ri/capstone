@@ -8,6 +8,9 @@ def start_btn():
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         if btn_rect.collidepoint(event.pos):
             game_state = "draw_game"
+            
+def drawCircle( screen, x, y ):
+    pygame.draw.circle( screen, 'Black', ( x, y ), 5 )
 
 
 def draw_start_menu():
@@ -32,20 +35,19 @@ def draw_start_menu():
 def draw_game():
     global background_color
     screen.fill((background_color))
-    drawing = False
-    last_pos = None
-    if event.type == pygame.MOUSEMOTION:
-        if drawing:
-            mouse_pos = pygame.mouse.get_pos()
-            if last_pos is not None:
-                pygame.draw.line(screen, last_pos, mouse_pos, 1)
-            last_pos = mouse_pos
-        elif event.type == pygame.MOUSEBUTTONUP:
-            mouse_pos = (0, 0)
-            drawing = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            drawing = True
-    pygame.display.update()
+    while True: 
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                isPressed = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                isPressed = False
+            elif event.type == pygame.MOUSEMOTION and isPressed == True:         
+                ( x, y ) = pygame.mouse.get_pos()
+                drawCircle( screen, x, y )
+            elif event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        pygame.display.update()
 
 
 pygame.init()
@@ -71,5 +73,6 @@ while True:
         start_btn()
     if game_state == "draw_game":
         draw_game()
+        
 
     pygame.display.flip()
