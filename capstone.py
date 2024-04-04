@@ -10,11 +10,12 @@ def start_btn():
             
             
 def red_btn():
+    print("toimii")
     global red_rect, pen_color
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         if red_rect.collidepoint(event.pos):
             pen_color = "2"
-            print("toimii")
+            
             
 
 def drawCircleB( screen, x, y ):
@@ -109,6 +110,7 @@ def draw_game():
     
     while True: 
         for event in pygame.event.get():
+            (äx) = pygame.mouse.get_pos()[0]
             if event.type == pygame.MOUSEBUTTONDOWN:
                 isPressed = True
             elif event.type == pygame.MOUSEBUTTONUP:
@@ -124,7 +126,9 @@ def draw_game():
                 elif pen_color == "4":
                     drawCircleBl(screen, x, y)
                 elif pen_color == "0":
-                    drawCircleW(screen, x, y)
+                    drawCircleW(screen, x, y)  
+            elif (äx) <= 100:
+                isPressed = False  
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
