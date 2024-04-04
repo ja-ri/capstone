@@ -124,14 +124,23 @@ def draw_game():
                     last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
                     pygame.draw.line(screen, 'Black', last, event.pos, 1)
             
+            #ensimmäinen elif toimii, jälkimmäiset ei 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if red_rect.collidepoint(event.pos):
                     pen_color = "2"
-                    print("toimi")
+                    print("toimi punanen")
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if red_rect.collidepoint(event.pos):
+                    pen_color = "4"
+                    print("toimi sininen")
 
-            #elif tyhjennä ruutu is painettu:
-            #    screen.fill('White')
-            #    drawButtons()
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if clear_rect.collidepoint(event.pos):
+                    screen.fill('White')
+                    drawButtons()
+                    print("toimii clearscreen")
 
 
             # elif event.type == pygame.MOUSEMOTION and isPressed == True:         
