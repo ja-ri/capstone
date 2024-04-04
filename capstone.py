@@ -33,30 +33,10 @@ def drawCircleR( screen, x, y ):
 def drawCircleG( screen, x, y ):
     pygame.draw.circle( screen, 'Green', ( x, y ), 5 )
 
-def draw_start_menu():
-    global background_color, btn_rect
-    screen.fill((background_color))
-    font1 = pygame.font.Font("freesansbold.ttf", 50)
-    font2 = pygame.font.Font("freesansbold.ttf", 24)
-    font3 = pygame.font.Font("freesansbold.ttf", 20)
-    title = font1.render('Title', False, 'Black')
-    instructions = font2.render('Instructions', False, 'Black')
-    btn_surface = pygame.Surface((150, 50))
-    btn_text = font3.render('Start', False, 'White')
-    text_rect = btn_text.get_rect(center=(btn_surface.get_width()/2, btn_surface.get_height()/2))
-    screen.blit(title, (screen_width/3, 80))
-    screen.blit(instructions, (screen_width/3, 160))
-    btn_surface.blit(btn_text, text_rect)
-    screen.blit(btn_surface, (btn_rect.x, btn_rect.y))
-    pygame.display.update()
-    
+def drawButtons():
 
-def draw_game():
-    global background_color, predict_rect, eraser_rect
-    screen.fill((background_color))
     font4 = pygame.font.Font("freesansbold.ttf", 16)
-    
-    #Button for predict
+     #Button for predict
     predict_surface = pygame.Surface((100, 50))
     predict_text = font4.render('Predict', False, 'White')
     text1_rect = predict_text.get_rect(center=(predict_surface.get_width()/2, predict_surface.get_height()/2))
@@ -104,31 +84,70 @@ def draw_game():
     text7_rect = clear_text.get_rect(center=(clear_surface.get_width()/2, clear_surface.get_height()/2))
     clear_surface.blit(clear_text, text7_rect)
     screen.blit(clear_surface, (clear_rect.x, clear_rect.y))
+
+
+
+def draw_start_menu():
+    global background_color, btn_rect
+    screen.fill((background_color))
+    font1 = pygame.font.Font("freesansbold.ttf", 50)
+    font2 = pygame.font.Font("freesansbold.ttf", 24)
+    font3 = pygame.font.Font("freesansbold.ttf", 20)
+    title = font1.render('Title', False, 'Black')
+    instructions = font2.render('Instructions', False, 'Black')
+    btn_surface = pygame.Surface((150, 50))
+    btn_text = font3.render('Start', False, 'White')
+    text_rect = btn_text.get_rect(center=(btn_surface.get_width()/2, btn_surface.get_height()/2))
+    screen.blit(title, (screen_width/3, 80))
+    screen.blit(instructions, (screen_width/3, 160))
+    btn_surface.blit(btn_text, text_rect)
+    screen.blit(btn_surface, (btn_rect.x, btn_rect.y))
+    pygame.display.update()
     
+
+def draw_game():
+    global background_color, predict_rect, eraser_rect
+    screen.fill((background_color))
     
-    
+    drawButtons()
     
     while True: 
         for event in pygame.event.get():
-            (äx) = pygame.mouse.get_pos()[0]
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            (a, s) = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN and a >= 100:
                 isPressed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 isPressed = False
-            elif event.type == pygame.MOUSEMOTION and isPressed == True:         
-                ( x, y ) = pygame.mouse.get_pos()
-                if pen_color == "1":
-                    drawCircleB( screen, x, y )
-                elif pen_color == "2":
-                    drawCircleR(screen, x, y)
-                elif pen_color == "3":
-                    drawCircleG(screen, x, y)
-                elif pen_color == "4":
-                    drawCircleBl(screen, x, y)
-                elif pen_color == "0":
-                    drawCircleW(screen, x, y)  
-            elif (äx) <= 100:
-                isPressed = False  
+
+            elif event.type == pygame.MOUSEMOTION:
+                if event.buttons[0]:  
+                    last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
+                    pygame.draw.line(screen, 'Black', last, event.pos, 1)
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if red_rect.collidepoint(event.pos):
+                    pen_color = "2"
+                    print("toimi")
+
+            #elif tyhjennä ruutu is painettu:
+            #    screen.fill('White')
+            #    drawButtons()
+
+
+            # elif event.type == pygame.MOUSEMOTION and isPressed == True:         
+            #    ( x, y ) = pygame.mouse.get_pos()
+             #   if pen_color == "1":
+             #       drawCircleB( screen, x, y )
+            #    elif pen_color == "2":
+             #       drawCircleR(screen, x, y)
+             #   elif pen_color == "3":
+             #       drawCircleG(screen, x, y)
+             #   elif pen_color == "4":
+              #      drawCircleBl(screen, x, y)
+              #  elif pen_color == "0":
+              #      drawCircleW(screen, x, y)  
+            # elif (äx) <= 100:
+                # isPressed = False  
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
