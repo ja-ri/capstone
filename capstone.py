@@ -76,21 +76,6 @@ def drawButtons():
     clear_surface.blit(clear_text, text7_rect)
     screen.blit(clear_surface, (clear_rect.x, clear_rect.y))
 
-   
-def drawCircleB( screen, x, y ):
-    pygame.draw.circle( screen, 'Black', ( x, y ), 5 )
-    
-def drawCircleW( screen, x, y ):
-    pygame.draw.circle( screen, 'White', ( x, y ), 10 )
-    
-def drawCircleBl( screen, x, y ):
-    pygame.draw.circle( screen, 'Blue', ( x, y ), 5 )
-
-def drawCircleR( screen, x, y ):
-    pygame.draw.circle( screen, 'Red', ( x, y ), 5 )
-
-def drawCircleG( screen, x, y ):
-    pygame.draw.circle( screen, 'Green', ( x, y ), 5 )
 
 def draw_start_menu():
     global background_color, btn_rect
