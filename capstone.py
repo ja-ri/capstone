@@ -10,6 +10,7 @@ def start_btn():
             
             
 def red_btn():
+
     global pen_color, red_rect
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         if red_rect.collidepoint(event.pos):
@@ -24,9 +25,9 @@ def black_btn():
             print("black")
             
 def drawButtons():
+
     font4 = pygame.font.Font("freesansbold.ttf", 16)
-    
-    #Button for predict
+     #Button for predict
     predict_surface = pygame.Surface((100, 50))
     predict_text = font4.render('Predict', False, 'White')
     text1_rect = predict_text.get_rect(center=(predict_surface.get_width()/2, predict_surface.get_height()/2))
@@ -75,6 +76,7 @@ def drawButtons():
     clear_surface.blit(clear_text, text7_rect)
     screen.blit(clear_surface, (clear_rect.x, clear_rect.y))
 
+   
 def drawCircleB( screen, x, y ):
     pygame.draw.circle( screen, 'Black', ( x, y ), 5 )
     
@@ -126,6 +128,7 @@ def draw_game():
                 if red_rect.collidepoint(event.pos):
                     pen_color = "2"
                     print("toimi punanen")
+
                     
                 elif green_rect.collidepoint(event.pos):
                     pen_color = "3"
@@ -139,6 +142,7 @@ def draw_game():
                     screen.fill('White')
                     drawButtons()
                     print("toimii clearscreen")
+
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
