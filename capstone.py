@@ -10,12 +10,18 @@ def start_btn():
             
             
 def red_btn():
-    global red_rect, pen_color
+    global pen_color, red_rect
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         if red_rect.collidepoint(event.pos):
             pen_color = "2"
             print("toimii")
             
+def black_btn():
+    global pen_color, black_rect
+    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        if black_rect.collidepoint(event.pos):
+            pen_color = "1"
+            print("toimii")
 
 def drawCircleB( screen, x, y ):
     pygame.draw.circle( screen, 'Black', ( x, y ), 5 )
@@ -109,16 +115,21 @@ def draw_game():
     
     while True: 
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            pen_color = "1" #colors: 0=eraser 1=black 2=red 3=green 4=blue
+            (a, s) = pygame.mouse.get_pos() 
+            if event.type == pygame.MOUSEBUTTONDOWN and a >= 100:
                 isPressed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 isPressed = False
             elif event.type == pygame.MOUSEMOTION and isPressed == True:         
                 ( x, y ) = pygame.mouse.get_pos()
                 if pen_color == "1":
-                    drawCircleB( screen, x, y )
-                elif pen_color == "2":
-                    drawCircleR(screen, x, y)
+                    drawCircleB(screen, x, y )
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if red_rect.collidepoint(event.pos):
+                        pen_color = "2"
+                        print("toimii")
+                        drawCircleR(screen, x, y)
                 elif pen_color == "3":
                     drawCircleG(screen, x, y)
                 elif pen_color == "4":
@@ -138,15 +149,15 @@ screen_height = 768
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
-pen_color = "1"       #colors: 0=eraser 1=black 2=red 3=green 4=blue
+
 btn_rect = pygame.Rect(600, 600, 100, 100)
-predict_rect = pygame.Rect(0, 300, 100, 100)
-eraser_rect = pygame.Rect(0, 350, 100, 100)
-black_rect = pygame.Rect(0, 400, 100, 100)
-red_rect = pygame.draw.rect(screen, 'Yellow', pygame.Rect(0, 450, 100, 100))
-green_rect = pygame.Rect(0, 500, 100, 100)
-blue_rect = pygame.Rect(0, 550, 100, 100)
-clear_rect = pygame.Rect(0, 600, 100, 100)
+predict_rect = pygame.Rect(0, 300, 100, 50)
+eraser_rect = pygame.Rect(0, 350, 100, 50)
+black_rect = pygame.Rect(0, 400, 100, 50)
+red_rect = pygame.Rect(0, 450, 100, 50)
+green_rect = pygame.Rect(0, 500, 100, 50)
+blue_rect = pygame.Rect(0, 550, 100, 50)
+clear_rect = pygame.Rect(0, 600, 100, 50)
 game_state = "start_menu"
 
 
