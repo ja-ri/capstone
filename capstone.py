@@ -124,14 +124,17 @@ def draw_game():
                     last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
                     pygame.draw.line(screen, 'Black', last, event.pos, 1)
             
-            #ensimmäinen elif toimii, jälkimmäiset ei 
+            #ensimmäinen elif toimii muut ei
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if red_rect.collidepoint(event.pos):
                     pen_color = "2"
                     print("toimi punanen")
-            
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if red_rect.collidepoint(event.pos):
+                if green_rect.collidepoint(event.pos):
+                    pen_color = "3"
+                    print("toimi vihree")
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if blue_rect.collidepoint(event.pos):
                     pen_color = "4"
                     print("toimi sininen")
 
