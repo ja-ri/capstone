@@ -1,5 +1,8 @@
 import pygame
+from time import sleep
 import sys
+import pygame_menu
+from pygame_menu import themes
 
 
 def start_btn():
@@ -76,6 +79,10 @@ def drawButtons():
     clear_surface.blit(clear_text, text7_rect)
     screen.blit(clear_surface, (clear_rect.x, clear_rect.y))
 
+def start_the_game():
+    pass
+mytheme = pygame_menu.themes.Theme(background_color=(0, 0, 0, 0), title_background_color = (4, 47, 126), title_font_shadow=True, widget_padding=25)
+  
 
 def draw_start_menu():
     global background_color, btn_rect
@@ -83,15 +90,22 @@ def draw_start_menu():
     font1 = pygame.font.Font("freesansbold.ttf", 50)
     font2 = pygame.font.Font("freesansbold.ttf", 24)
     font3 = pygame.font.Font("freesansbold.ttf", 20)
-    title = font1.render('Title', False, 'Black')
-    instructions = font2.render('Instructions', False, 'Black')
-    btn_surface = pygame.Surface((150, 50))
-    btn_text = font3.render('Start', False, 'White')
-    text_rect = btn_text.get_rect(center=(btn_surface.get_width()/2, btn_surface.get_height()/2))
-    screen.blit(title, (screen_width/3, 80))
-    screen.blit(instructions, (screen_width/3, 160))
-    btn_surface.blit(btn_text, text_rect)
-    screen.blit(btn_surface, (btn_rect.x, btn_rect.y))
+    start_the_game()
+    #title = font1.render('Title', False, 'Black')
+    #instructions = font2.render('Instructions', False, 'Black')
+    #btn_surface = pygame.Surface((150, 50))
+    #btn_text = font3.render('Start', False, 'White')
+    #text_rect = btn_text.get_rect(center=(btn_surface.get_width()/2, btn_surface.get_height()/2))
+    #screen.blit(title, (screen_width/3, 80))
+    #screen.blit(instructions, (screen_width/3, 160))
+    #btn_surface.blit(btn_text, text_rect)
+    #screen.blit(btn_surface, (btn_rect.x, btn_rect.y))
+    mainmenu = pygame_menu.Menu('Capstone', 600, 400, theme=mytheme)
+    mainmenu.add.button('Start', start_the_game)
+    mainmenu.add.button('Quit', pygame_menu.events.EXIT)
+    pygame_menu.widgets.HighlightSelection(border_width=1, margin_x=16, margin_y=8)
+  
+    mainmenu.mainloop(screen)
     pygame.display.update()
     
 
@@ -161,6 +175,7 @@ while True:
             sys.exit()
 
     if game_state == "start_menu":
+        start_the_game()
         draw_start_menu()
         start_btn()
     if game_state == "draw_game":
