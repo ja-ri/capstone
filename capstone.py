@@ -3,6 +3,9 @@ from time import sleep
 import sys
 import pygame_menu
 from pygame_menu import themes
+import numpy as np
+import cv2
+import pyautogui
 
 
 def start_btn():
@@ -26,6 +29,16 @@ def black_btn():
         if black_rect.collidepoint(event.pos):
             pen_color = "1"
             print("black")
+            
+# take screenshot using pyautogui
+#image = pyautogui.screenshot()
+# this will return the image as PIL and
+# store in `image`
+
+# if you need to save the image as a
+# file, pass the path of the file as
+# an argument like this
+#image1 = pyautogui.screenshot("image1.png")
             
 def drawButtons():
 
@@ -91,17 +104,8 @@ def draw_start_menu():
     font2 = pygame.font.Font("freesansbold.ttf", 24)
     font3 = pygame.font.Font("freesansbold.ttf", 20)
     start_the_game()
-    #title = font1.render('Title', False, 'Black')
-    #instructions = font2.render('Instructions', False, 'Black')
-    #btn_surface = pygame.Surface((150, 50))
-    #btn_text = font3.render('Start', False, 'White')
-    #text_rect = btn_text.get_rect(center=(btn_surface.get_width()/2, btn_surface.get_height()/2))
-    #screen.blit(title, (screen_width/3, 80))
-    #screen.blit(instructions, (screen_width/3, 160))
-    #btn_surface.blit(btn_text, text_rect)
-    #screen.blit(btn_surface, (btn_rect.x, btn_rect.y))
     mainmenu = pygame_menu.Menu('Capstone', 600, 400, theme=mytheme)
-    mainmenu.add.button('Start', start_the_game)
+    mainmenu.add.button('Start', draw_game)
     mainmenu.add.button('Quit', pygame_menu.events.EXIT)
     pygame_menu.widgets.HighlightSelection(border_width=1, margin_x=16, margin_y=8)
   
@@ -116,7 +120,6 @@ def draw_game():
     
     while True: 
         for event in pygame.event.get():
-            pen_color = "1" #colors: 0=eraser 1=black 2=red 3=green 4=blue
             (a, s) = pygame.mouse.get_pos() 
             if event.type == pygame.MOUSEMOTION and a >= 100:
                 if event.buttons[0]:  
@@ -125,16 +128,12 @@ def draw_game():
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if red_rect.collidepoint(event.pos):
-                    pen_color = "2"
                     print("toimi punanen")
-
-                    
+               
                 elif green_rect.collidepoint(event.pos):
-                    pen_color = "3"
                     print("toimi vihree")
                     
                 elif blue_rect.collidepoint(event.pos):
-                    pen_color = "4"
                     print("toimi sininen")
 
                 elif clear_rect.collidepoint(event.pos):
