@@ -76,21 +76,6 @@ def drawButtons():
     clear_surface.blit(clear_text, text7_rect)
     screen.blit(clear_surface, (clear_rect.x, clear_rect.y))
 
-   
-def drawCircleB( screen, x, y ):
-    pygame.draw.circle( screen, 'Black', ( x, y ), 5 )
-    
-def drawCircleW( screen, x, y ):
-    pygame.draw.circle( screen, 'White', ( x, y ), 10 )
-    
-def drawCircleBl( screen, x, y ):
-    pygame.draw.circle( screen, 'Blue', ( x, y ), 5 )
-
-def drawCircleR( screen, x, y ):
-    pygame.draw.circle( screen, 'Red', ( x, y ), 5 )
-
-def drawCircleG( screen, x, y ):
-    pygame.draw.circle( screen, 'Green', ( x, y ), 5 )
 
 def draw_start_menu():
     global background_color, btn_rect
@@ -117,7 +102,6 @@ def draw_game():
     
     while True: 
         for event in pygame.event.get():
-            pen_color = "1" #colors: 0=eraser 1=black 2=red 3=green 4=blue
             (a, s) = pygame.mouse.get_pos() 
             if event.type == pygame.MOUSEMOTION and a >= 100:
                 if event.buttons[0]:  
@@ -126,16 +110,12 @@ def draw_game():
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if red_rect.collidepoint(event.pos):
-                    pen_color = "2"
                     print("toimi punanen")
-
-                    
+               
                 elif green_rect.collidepoint(event.pos):
-                    pen_color = "3"
                     print("toimi vihree")
                     
                 elif blue_rect.collidepoint(event.pos):
-                    pen_color = "4"
                     print("toimi sininen")
 
                 elif clear_rect.collidepoint(event.pos):
