@@ -3,9 +3,6 @@ from time import sleep
 import sys
 import pygame_menu
 from pygame_menu import themes
-import numpy as np
-import cv2
-import pyautogui
 
 
 def start_btn():
@@ -30,15 +27,6 @@ def black_btn():
             pen_color = "1"
             print("black")
             
-# take screenshot using pyautogui
-#image = pyautogui.screenshot()
-# this will return the image as PIL and
-# store in `image`
-
-# if you need to save the image as a
-# file, pass the path of the file as
-# an argument like this
-#image1 = pyautogui.screenshot("image1.png")
             
 def drawButtons():
 
@@ -116,6 +104,8 @@ def draw_start_menu():
 def draw_game():
     global background_color, predict_rect, eraser_rect
     screen.fill((background_color))
+    color = 'Black'
+    size = 4
     drawButtons()
     
     while True: 
@@ -124,17 +114,33 @@ def draw_game():
             if event.type == pygame.MOUSEMOTION and a >= 100:
                 if event.buttons[0]:  
                     last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
-                    pygame.draw.line(screen, 'Black', last, event.pos, 1)
+                    pygame.draw.line(screen, color, last, event.pos, size)
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if red_rect.collidepoint(event.pos):
+                    color = 'Red'
+                    size = 4
                     print("toimi punanen")
                
                 elif green_rect.collidepoint(event.pos):
+                    color = 'Green'
+                    size = 4
                     print("toimi vihree")
                     
                 elif blue_rect.collidepoint(event.pos):
+                    color = 'Blue'
+                    size = 4
                     print("toimi sininen")
+                
+                elif black_rect.collidepoint(event.pos):
+                    color = 'Black'
+                    size = 4
+                    print("toimi musta")
+                    
+                elif eraser_rect.collidepoint(event.pos):
+                    color = 'White'
+                    size = 25
+                    print("toimi valkonen")
 
                 elif clear_rect.collidepoint(event.pos):
                     screen.fill('White')
