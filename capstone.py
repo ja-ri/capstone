@@ -5,7 +5,7 @@ import pygame_menu
 from pygame_menu import themes
           
             
-def drawButtons():
+def draw_buttons():
 
     font4 = pygame.font.Font("freesansbold.ttf", 16)
      #Button for predict
@@ -78,7 +78,7 @@ def draw_game():
     screen.fill((background_color))
     color = 'Black'
     size = 4
-    drawButtons()
+    draw_buttons()
     
     while True: 
         for event in pygame.event.get():
@@ -111,7 +111,7 @@ def draw_game():
 
                 elif clear_rect.collidepoint(event.pos):
                     screen.fill('White')
-                    drawButtons()
+                    draw_buttons()
 
             elif event.type == pygame.QUIT:
                 pygame.quit()
