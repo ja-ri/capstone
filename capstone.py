@@ -3,30 +3,7 @@ from time import sleep
 import sys
 import pygame_menu
 from pygame_menu import themes
-
-
-def start_btn():
-    global game_state, btn_rect
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        if btn_rect.collidepoint(event.pos):
-            game_state = "draw_game"
-            
-            
-def red_btn():
-
-    global pen_color, red_rect
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        if red_rect.collidepoint(event.pos):
-            pen_color = "2"
-            print("red")
-            
-def black_btn():
-    global pen_color, black_rect
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        if black_rect.collidepoint(event.pos):
-            pen_color = "1"
-            print("black")
-            
+          
             
 def drawButtons():
 
@@ -80,18 +57,13 @@ def drawButtons():
     clear_surface.blit(clear_text, text7_rect)
     screen.blit(clear_surface, (clear_rect.x, clear_rect.y))
 
-def start_the_game():
-    pass
+
 mytheme = pygame_menu.themes.Theme(background_color=(0, 0, 0, 0), title_background_color = (4, 47, 126), title_font_shadow=True, widget_padding=25)
   
 
 def draw_start_menu():
     global background_color, btn_rect
     screen.fill((background_color))
-    font1 = pygame.font.Font("freesansbold.ttf", 50)
-    font2 = pygame.font.Font("freesansbold.ttf", 24)
-    font3 = pygame.font.Font("freesansbold.ttf", 20)
-    start_the_game()
     mainmenu = pygame_menu.Menu('Capstone', 600, 400, theme=mytheme)
     mainmenu.add.button('Start', draw_game)
     mainmenu.add.button('Quit', pygame_menu.events.EXIT)
@@ -120,32 +92,26 @@ def draw_game():
                 if red_rect.collidepoint(event.pos):
                     color = 'Red'
                     size = 4
-                    print("toimi punanen")
                
                 elif green_rect.collidepoint(event.pos):
                     color = 'Green'
                     size = 4
-                    print("toimi vihree")
                     
                 elif blue_rect.collidepoint(event.pos):
                     color = 'Blue'
                     size = 4
-                    print("toimi sininen")
                 
                 elif black_rect.collidepoint(event.pos):
                     color = 'Black'
                     size = 4
-                    print("toimi musta")
                     
                 elif eraser_rect.collidepoint(event.pos):
                     color = 'White'
                     size = 25
-                    print("toimi valkonen")
 
                 elif clear_rect.collidepoint(event.pos):
                     screen.fill('White')
                     drawButtons()
-                    print("toimii clearscreen")
 
             elif event.type == pygame.QUIT:
                 pygame.quit()
@@ -180,11 +146,8 @@ while True:
             sys.exit()
 
     if game_state == "start_menu":
-        start_the_game()
         draw_start_menu()
-        start_btn()
     if game_state == "draw_game":
         draw_game()
         
-
     pygame.display.flip()
