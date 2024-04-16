@@ -123,10 +123,12 @@ def draw_game():
                 elif predict_rect.collidepoint(event.pos):
                     pygame.image.save(sub, 'image1.png')
                     image = Image.open("image1.png")
-                    imagegs = ImageOps.grayscale(image)
-                    imagegs = imagegs.save("image1.png")
+                    image = image.save("image1.png")
                     image = cv2.imread("image1.png")
-                    cv2.imshow("image1.png", image)
+                    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                    cv2.imwrite('image1.jpg', gray_image)
+                    cv2.imshow("image1.jpg", gray_image)
+                    print(gray_image.shape)
                     #crop_image(image)
                     
                     
