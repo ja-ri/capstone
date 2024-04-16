@@ -3,6 +3,7 @@ from time import sleep
 import sys
 import pygame_menu
 from pygame_menu import themes
+from PIL import Image, ImageOps
           
             
 def draw_buttons():
@@ -62,9 +63,8 @@ mytheme = pygame_menu.themes.Theme(background_color=(0, 0, 0, 0), title_backgrou
   
 
 def draw_start_menu():
-    global background_color, btn_rect
     screen.fill((background_color))
-    mainmenu = pygame_menu.Menu('Capstone', 600, 400, theme=mytheme)
+    mainmenu = pygame_menu.Menu('Capstone', screen_width, screen_height, theme=mytheme)
     mainmenu.add.button('Start', draw_game)
     mainmenu.add.button('Quit', pygame_menu.events.EXIT)
     pygame_menu.widgets.HighlightSelection(border_width=1, margin_x=16, margin_y=8)
@@ -74,7 +74,8 @@ def draw_start_menu():
     
 
 def draw_game():
-    global background_color, predict_rect, eraser_rect
+    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
+    sub = screen.subsurface(subrect)
     screen.fill((background_color))
     color = 'Black'
     size = 4
@@ -112,6 +113,16 @@ def draw_game():
                 elif clear_rect.collidepoint(event.pos):
                     screen.fill('White')
                     draw_buttons()
+                    
+                elif predict_rect.collidepoint(event.pos):
+                    pygame.image.save(sub, 'image1.png')
+                    image = Image.open("image1.png")
+                    imagegs = ImageOps.grayscale(image)
+                    imagegs.show()
+                    imagegs = imagegs.save("image1.png")
+                    
+                    
+                    
 
             elif event.type == pygame.QUIT:
                 pygame.quit()
