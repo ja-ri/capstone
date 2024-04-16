@@ -4,6 +4,8 @@ import sys
 import pygame_menu
 from pygame_menu import themes
 from PIL import Image, ImageOps
+import numpy as np
+import cv2
           
             
 def draw_buttons():
@@ -72,6 +74,10 @@ def draw_start_menu():
     mainmenu.mainloop(screen)
     pygame.display.update()
     
+def crop_image(img,tol=0):
+    mask = img>tol
+    return img[np.ix_(mask.any(1),mask.any(0))]
+    
 
 def draw_game():
     subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
@@ -118,8 +124,11 @@ def draw_game():
                     pygame.image.save(sub, 'image1.png')
                     image = Image.open("image1.png")
                     imagegs = ImageOps.grayscale(image)
-                    imagegs.show()
                     imagegs = imagegs.save("image1.png")
+                    image = cv2.imread("image1.png")
+                    cv2.imshow("image1.png", image)
+                    #crop_image(image)
+                    
                     
                     
                     
