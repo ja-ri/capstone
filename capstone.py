@@ -6,6 +6,14 @@ from pygame_menu import themes
 from PIL import Image, ImageOps
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+import glob, os
+import random
+from keras.utils import to_categorical
+from keras.models import load_model
+from sklearn.preprocessing import OneHotEncoder
+import pickle
+
           
             
 def draw_buttons():
@@ -84,7 +92,7 @@ def draw_game():
     sub = screen.subsurface(subrect)
     screen.fill((background_color))
     color = 'Black'
-    size = 4
+    size = 10
     draw_buttons()
     
     while True: 
@@ -98,23 +106,23 @@ def draw_game():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if red_rect.collidepoint(event.pos):
                     color = 'Red'
-                    size = 4
+                    size = 10
                
                 elif green_rect.collidepoint(event.pos):
                     color = 'Green'
-                    size = 4
+                    size = 10
                     
                 elif blue_rect.collidepoint(event.pos):
                     color = 'Blue'
-                    size = 4
+                    size = 10
                 
                 elif black_rect.collidepoint(event.pos):
                     color = 'Black'
-                    size = 4
+                    size = 10
                     
                 elif eraser_rect.collidepoint(event.pos):
                     color = 'White'
-                    size = 25
+                    size = 40
 
                 elif clear_rect.collidepoint(event.pos):
                     screen.fill('White')
@@ -126,8 +134,34 @@ def draw_game():
                     image = image.save("image1.png")
                     image = cv2.imread("image1.png")
                     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                    cv2.imwrite('image1.jpg', gray_image)
-                    cv2.imshow("image1.jpg", gray_image)
+                    #cv2.imwrite('image1.jpg', gray_image)
+                    gray_image = cv2.bitwise_not(gray_image)
+                    #print(gray_image.shape)
+                    x,y,w,h = cv2.boundingRect(gray_image) #leveempi sivu kokonaan, lyhyemmän sivu puoleenväliin ja siitä molempiin suuntiin puolikas pidempää sivua
+                    gray_image = gray_image[y:h+y, x:w+x]
+                    #cv2.imwrite = cv2('image1.jpg', gray_image)
+                    test = cv2.resize(gray_image, (28,28), interpolation=cv2.INTER_AREA)
+                    #plt.imshow(test)
+                    test = cv2.bitwise_not(test)
+                    cv2.imwrite('image1.jpg', test)
+                    cv2.imshow("image1.jpg", test)
+                    test = np.expand_dims(test, axis=0)
+                    print(test.shape)
+                    with open('encoder.pickle','rb') as f:
+                        encode=pickle.load(f)
+                    prediction = model.predict(test)
+                    #encode_names = np.array([""]).reshape(-1,1)
+                    #encode = OneHotEncoder(handle_unknown='error')
+                    #encoded_names = encode.fit_transform(encode_names).toarray()
+                    max_index = np.argmax(prediction)
+                    one_hot_encoded = np.zeros_like(prediction)
+                    one_hot_encoded[0][max_index] = 1
+                    print(f"prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}")
+                    
+                    #testausta
+                    #cv2.imwrite('image1.jpg', test)
+                    #cv2.imshow("image1.jpg", test)
+                    print(x,y,w,h)
                     print(gray_image.shape)
                     #crop_image(image)
                     
@@ -148,6 +182,7 @@ screen_height = 768
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
+model = load_model("12_classes.h5")
 
 btn_rect = pygame.Rect(600, 600, 100, 100)
 predict_rect = pygame.Rect(0, 300, 100, 50)
