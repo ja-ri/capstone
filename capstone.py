@@ -13,6 +13,7 @@ from keras.utils import to_categorical
 from keras.models import load_model
 from sklearn.preprocessing import OneHotEncoder
 import pickle
+from win32api import GetSystemMetrics
 
           
             
@@ -161,8 +162,8 @@ def draw_game():
                     #testausta
                     #cv2.imwrite('image1.jpg', test)
                     #cv2.imshow("image1.jpg", test)
-                    print(x,y,w,h)
-                    print(gray_image.shape)
+                    #print(x,y,w,h)
+                    #print(gray_image.shape)
                     #crop_image(image)
                     
                     
@@ -172,19 +173,23 @@ def draw_game():
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
         pygame.display.update()
 
 
 pygame.init()
 clock = pygame.time.Clock()
-screen_width = 1280
-screen_height = 768
+screen_width = GetSystemMetrics(0)
+screen_height = GetSystemMetrics(1)
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
 model = load_model("12_classes.h5")
 
-btn_rect = pygame.Rect(600, 600, 100, 100)
+#btn_rect = pygame.Rect(600, 600, 100, 100)
 predict_rect = pygame.Rect(0, 300, 100, 50)
 eraser_rect = pygame.Rect(0, 350, 100, 50)
 black_rect = pygame.Rect(0, 400, 100, 50)
