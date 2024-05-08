@@ -83,9 +83,44 @@ def draw_start_menu():
     mainmenu.mainloop(screen)
     pygame.display.update()
     
-def crop_image(img,tol=0):
-    mask = img>tol
-    return img[np.ix_(mask.any(1),mask.any(0))]
+def crop_image(image):
+    #Calculate the bounding rectangle that contains every part of the image
+    x, y, w, h = cv2.boundingRect(image)
+
+    #Determine the size of the bounding square
+    square_size = max(w, h)
+
+    #Determine the coordinates of the bounding square to center the drawing
+    square_x = x + (w - square_size) // 2
+    square_y = y + (h - square_size) // 2
+
+    #Check if the square exceeds the dimensions of the image
+    if square_x < 0 or square_y < 0 or square_x + square_size > image.shape[1] or square_y + square_size > image.shape[0]:
+        # Calculate the amount of extension needed on each side
+        left_extension = max(0 - square_x, 0)
+        top_extension = max(0 - square_y, 0)
+        right_extension = max(square_x + square_size - image.shape[1], 0)
+        bottom_extension = max(square_y + square_size - image.shape[0], 0)
+
+        # Extend the image beyond its boundaries
+        extended_image = cv2.copyMakeBorder(image, top_extension, bottom_extension, left_extension, right_extension, cv2.BORDER_CONSTANT, value=(0))
+
+        # Adjust the square coordinates due to extension
+        square_x += left_extension
+        square_y += top_extension
+
+        # The final square x,y,w,h
+        square = square_x, square_y, square_size, square_size
+        # Final crop
+        output = extended_image[square_y:square_y+square_size, square_x:square_x+square_size]
+        return output
+
+    else:
+        # The final square x,y,w,h
+        square = square_x, square_y, square_size, square_size
+        # Final crop
+        output = image[square_y:square_y+square_size, square_x:square_x+square_size]
+        return output
     
 
 def draw_game():
@@ -138,16 +173,18 @@ def draw_game():
                     #cv2.imwrite('image1.jpg', gray_image)
                     gray_image = cv2.bitwise_not(gray_image)
                     #print(gray_image.shape)
-                    x,y,w,h = cv2.boundingRect(gray_image) #leveempi sivu kokonaan, lyhyemmän sivu puoleenväliin ja siitä molempiin suuntiin puolikas pidempää sivua
-                    gray_image = gray_image[y:h+y, x:w+x]
+                    #x,y,w,h = cv2.boundingRect(gray_image) #leveempi sivu kokonaan, lyhyemmän sivu puoleenväliin ja siitä molempiin suuntiin puolikas pidempää sivua
+                    #gray_image = gray_image[y:h+y, x:w+x]
                     #cv2.imwrite = cv2('image1.jpg', gray_image)
-                    test = cv2.resize(gray_image, (28,28), interpolation=cv2.INTER_AREA)
                     #plt.imshow(test)
-                    test = cv2.bitwise_not(test)
-                    cv2.imwrite('image1.jpg', test)
-                    cv2.imshow("image1.jpg", test)
+                    test = crop_image(gray_image)
+                    #cv2.imwrite('image1.jpg', test)
+                    #cv2.imshow("image1.jpg", test)
+                    test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
+                    #cv2.imwrite('image2.jpg', test)
+                    #cv2.imshow("image2.jpg", test)
                     test = np.expand_dims(test, axis=0)
-                    print(test.shape)
+                    #print(test.shape)
                     with open('encoder.pickle','rb') as f:
                         encode=pickle.load(f)
                     prediction = model.predict(test)
@@ -157,6 +194,8 @@ def draw_game():
                     max_index = np.argmax(prediction)
                     one_hot_encoded = np.zeros_like(prediction)
                     one_hot_encoded[0][max_index] = 1
+                    print(prediction)
+                    print(one_hot_encoded)
                     print(f"prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}")
                     
                     #testausta
