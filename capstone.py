@@ -18,9 +18,9 @@ from win32api import GetSystemMetrics
           
             
 def draw_buttons():
-
+    # default font initialized
     font4 = pygame.font.Font("freesansbold.ttf", 16)
-     #Button for predict
+    #Button for predict
     predict_surface = pygame.Surface((100, 50))
     predict_text = font4.render('Predict', False, 'White')
     text1_rect = predict_text.get_rect(center=(predict_surface.get_width()/2, predict_surface.get_height()/2))
@@ -74,6 +74,7 @@ mytheme = pygame_menu.themes.Theme(background_color=(0, 0, 0, 0), title_backgrou
   
 
 def draw_start_menu():
+    #draws start menu
     screen.fill((background_color))
     mainmenu = pygame_menu.Menu('Capstone', screen_width, screen_height, theme=mytheme)
     mainmenu.add.button('Start', draw_game)
@@ -84,6 +85,7 @@ def draw_start_menu():
     pygame.display.update()
     
 def process_image():
+    #processing image to desired format
     subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
     sub = screen.subsurface(subrect)
     pygame.image.save(sub, 'image1.png')
@@ -219,7 +221,7 @@ pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
 model = load_model("12_classes.h5")
 
-#btn_rect = pygame.Rect(600, 600, 100, 100)
+
 predict_rect = pygame.Rect(0, 300, 100, 50)
 eraser_rect = pygame.Rect(0, 350, 100, 50)
 black_rect = pygame.Rect(0, 400, 100, 50)
