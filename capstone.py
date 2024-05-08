@@ -83,6 +83,17 @@ def draw_start_menu():
     mainmenu.mainloop(screen)
     pygame.display.update()
     
+def process_image():
+    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
+    sub = screen.subsurface(subrect)
+    pygame.image.save(sub, 'image1.png')
+    image = Image.open("image1.png")
+    image = image.save("image1.png")
+    image = cv2.imread("image1.png")
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray_image = cv2.bitwise_not(gray_image)
+    return gray_image
+    
 def crop_image(image):
     #Calculate the bounding rectangle that contains every part of the image
     x, y, w, h = cv2.boundingRect(image)
@@ -124,8 +135,6 @@ def crop_image(image):
     
 
 def draw_game():
-    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
-    sub = screen.subsurface(subrect)
     screen.fill((background_color))
     color = 'Black'
     size = 10
@@ -165,32 +174,16 @@ def draw_game():
                     draw_buttons()
                     
                 elif predict_rect.collidepoint(event.pos):
-                    pygame.image.save(sub, 'image1.png')
-                    image = Image.open("image1.png")
-                    image = image.save("image1.png")
-                    image = cv2.imread("image1.png")
-                    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                    #cv2.imwrite('image1.jpg', gray_image)
-                    gray_image = cv2.bitwise_not(gray_image)
-                    #print(gray_image.shape)
-                    #x,y,w,h = cv2.boundingRect(gray_image) #leveempi sivu kokonaan, lyhyemmän sivu puoleenväliin ja siitä molempiin suuntiin puolikas pidempää sivua
-                    #gray_image = gray_image[y:h+y, x:w+x]
-                    #cv2.imwrite = cv2('image1.jpg', gray_image)
-                    #plt.imshow(test)
+                    gray_image = process_image()
                     test = crop_image(gray_image)
-                    #cv2.imwrite('image1.jpg', test)
-                    #cv2.imshow("image1.jpg", test)
+                    cv2.imwrite('image1.jpg', test)
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
-                    #cv2.imwrite('image2.jpg', test)
-                    #cv2.imshow("image2.jpg", test)
+                    
+                    cv2.imwrite('image2.jpg', test)
                     test = np.expand_dims(test, axis=0)
-                    #print(test.shape)
                     with open('encoder.pickle','rb') as f:
                         encode=pickle.load(f)
                     prediction = model.predict(test)
-                    #encode_names = np.array([""]).reshape(-1,1)
-                    #encode = OneHotEncoder(handle_unknown='error')
-                    #encoded_names = encode.fit_transform(encode_names).toarray()
                     max_index = np.argmax(prediction)
                     one_hot_encoded = np.zeros_like(prediction)
                     one_hot_encoded[0][max_index] = 1
@@ -200,12 +193,7 @@ def draw_game():
                     
                     #testausta
                     #cv2.imwrite('image1.jpg', test)
-                    #cv2.imshow("image1.jpg", test)
-                    #print(x,y,w,h)
-                    #print(gray_image.shape)
-                    #crop_image(image)
-                    
-                    
+                    #cv2.imshow("image1.jpg", test)                
                     
                     
 
@@ -216,6 +204,9 @@ def draw_game():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+                elif event.key == pygame.K_c:
+                    screen.fill('White')
+                    draw_buttons()
         pygame.display.update()
 
 
