@@ -137,18 +137,44 @@ def crop_image(image):
     
 
 def draw_game():
+    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
+    sub = screen.subsurface(subrect)
     screen.fill((background_color))
     color = 'Black'
     size = 10
     draw_buttons()
+    drawing = False
+
+    
     
     while True: 
         for event in pygame.event.get():
-            (a, s) = pygame.mouse.get_pos() 
-            if event.type == pygame.MOUSEMOTION and a >= 100:
-                if event.buttons[0]:  
-                    last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
-                    pygame.draw.line(screen, color, last, event.pos, size)
+            (a, s) = pygame.mouse.get_pos()
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and a>=100:
+                if event.button == 1:  # Left mouse button
+                    drawing = True
+                    last_pos = pygame.mouse.get_pos()  # Get the starting position
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    drawing = False
+            elif event.type == pygame.MOUSEMOTION:
+                if drawing:
+                    end_pos = pygame.mouse.get_pos()  # Get the current position
+                    pygame.draw.circle(screen, color, end_pos, size)  # Draw a circle at the current position
+
+                # Connect consecutive positions with circles to simulate a line
+                    dx = end_pos[0] - last_pos[0]
+                    dy = end_pos[1] - last_pos[1]
+                    distance = max(abs(dx), abs(dy))
+                    for i in range(1, distance + 1):
+                        x = last_pos[0] + int(float(i) / distance * dx)
+                        y = last_pos[1] + int(float(i) / distance * dy)
+                        pygame.draw.circle(screen, color, (x, y), size)
+
+                    last_pos = end_pos  # Update last position
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if red_rect.collidepoint(event.pos):
@@ -180,8 +206,9 @@ def draw_game():
                     test = crop_image(gray_image)
                     cv2.imwrite('image1.jpg', test)
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
+                    test = cv2.normalize(test, test, 0, 1, cv2.NORM_MINMAX, dtype=cv2.CV_32F)
                     
-                    cv2.imwrite('image2.jpg', test)
+                    cv2.imwrite('image2.jpg', test*255)
                     test = np.expand_dims(test, axis=0)
                     with open('encoder.pickle','rb') as f:
                         encode=pickle.load(f)
@@ -219,7 +246,7 @@ screen_height = GetSystemMetrics(1)
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
-model = load_model("12_classes.h5")
+model = load_model("12_classes2.h5")
 
 
 predict_rect = pygame.Rect(0, 300, 100, 50)
