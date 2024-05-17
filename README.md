@@ -1,2 +1,0 @@
-# capstone
-UTU capstone project
