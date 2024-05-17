@@ -192,10 +192,15 @@ def crop_image(image):
 <<<<<<< Updated upstream
 
 def draw_game():
+    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
+    sub = screen.subsurface(subrect)
     screen.fill((background_color))
     color = 'Black'
     size = 10
     draw_buttons()
+    drawing = False
+
+    
 =======
 def draw_game():
     screen.fill(background_color)
@@ -225,11 +230,32 @@ def draw_game():
     
     while True: 
         for event in pygame.event.get():
-            (a, s) = pygame.mouse.get_pos() 
-            if event.type == pygame.MOUSEMOTION and a >= 100:
-                if event.buttons[0]:  
-                    last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
-                    pygame.draw.line(screen, color, last, event.pos, size)
+            (a, s) = pygame.mouse.get_pos()
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and a>=100:
+                if event.button == 1:  # Left mouse button
+                    drawing = True
+                    last_pos = pygame.mouse.get_pos()  # Get the starting position
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    drawing = False
+            elif event.type == pygame.MOUSEMOTION:
+                if drawing:
+                    end_pos = pygame.mouse.get_pos()  # Get the current position
+                    pygame.draw.circle(screen, color, end_pos, size)  # Draw a circle at the current position
+
+                # Connect consecutive positions with circles to simulate a line
+                    dx = end_pos[0] - last_pos[0]
+                    dy = end_pos[1] - last_pos[1]
+                    distance = max(abs(dx), abs(dy))
+                    for i in range(1, distance + 1):
+                        x = last_pos[0] + int(float(i) / distance * dx)
+                        y = last_pos[1] + int(float(i) / distance * dy)
+                        pygame.draw.circle(screen, color, (x, y), size)
+
+                    last_pos = end_pos  # Update last position
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 <<<<<<< Updated upstream
@@ -289,8 +315,9 @@ def draw_game():
                     test = crop_image(gray_image)
                     cv2.imwrite('image1.jpg', test)
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
+                    test = cv2.normalize(test, test, 0, 1, cv2.NORM_MINMAX, dtype=cv2.CV_32F)
                     
-                    cv2.imwrite('image2.jpg', test)
+                    cv2.imwrite('image2.jpg', test*255)
                     test = np.expand_dims(test, axis=0)
                     with open('encoder.pickle','rb') as f:
                         encode=pickle.load(f)
@@ -362,6 +389,7 @@ def draw_game():
                     last_pos = end_pos  # Update last position
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+<<<<<<< Updated upstream
                 if red_rect.collidepoint(event.pos):
                     color = 'Red'
                     size = 10
@@ -387,6 +415,33 @@ def draw_game():
                     draw_buttons()
                     
                 elif predict_rect.collidepoint(event.pos):
+=======
+                if RED_BUTTON.checkForInput(DRAW_MOUSE_POS):
+                    color = 'Red'
+                    size = 10
+               
+                elif GREEN_BUTTON.checkForInput(DRAW_MOUSE_POS):
+                    color = 'Green'
+                    size = 10
+                    
+                elif BLUE_BUTTON.checkForInput(DRAW_MOUSE_POS):
+                    color = 'Blue'
+                    size = 10
+                
+                elif BLACK_BUTTON.checkForInput(DRAW_MOUSE_POS):
+                    color = 'Black'
+                    size = 10
+                    
+                elif ERASER_BUTTON.checkForInput(DRAW_MOUSE_POS):
+                    color = 'White'
+                    size = 40
+
+                elif CLEAR_BUTTON.checkForInput(DRAW_MOUSE_POS):
+                    screen.fill('White')
+                    draw_buttons()
+                    
+                elif PREDICT_BUTTON.checkForInput(DRAW_MOUSE_POS):
+>>>>>>> Stashed changes
                     gray_image = process_image()
                     test = crop_image(gray_image)
                     cv2.imwrite('image1.jpg', test)
