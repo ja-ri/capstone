@@ -186,7 +186,7 @@ class PyGameIR_thread(QThread):
             gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
             
             # Thresholding to isolate bright areas (IR light)
-            _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+            _, thresh = cv2.threshold(gray, 250, 255, cv2.THRESH_BINARY)
             
             # Find contours
             contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

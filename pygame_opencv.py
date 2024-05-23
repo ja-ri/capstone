@@ -9,8 +9,6 @@ import cv2
 import matplotlib.pyplot as plt
 import glob, os
 import random
-from keras.utils import to_categorical
-from keras.models import load_model
 from sklearn.preprocessing import OneHotEncoder
 import pickle
 # from win32api import GetSystemMetrics
@@ -111,7 +109,6 @@ class PyGameMouse_thread(QThread):
         self.screen.blit(clear_surface, (self.clear_rect.x, self.clear_rect.y))
         
     
-
     def draw_start_menu(self):
         #draws start menu
         self.screen.fill((self.background_color))
@@ -138,41 +135,9 @@ class PyGameMouse_thread(QThread):
     def crop_image(self,image):
         #Calculate the bounding rectangle that contains every part of the image
         x, y, w, h = cv2.boundingRect(image)
-
-        #Determine the size of the bounding square
-        square_size = max(w, h)
-
-        #Determine the coordinates of the bounding square to center the drawing
-        square_x = x + (w - square_size) // 2
-        square_y = y + (h - square_size) // 2
-
-        #Check if the square exceeds the dimensions of the image
-        if square_x < 0 or square_y < 0 or square_x + square_size > image.shape[1] or square_y + square_size > image.shape[0]:
-            # Calculate the amount of extension needed on each side
-            left_extension = max(0 - square_x, 0)
-            top_extension = max(0 - square_y, 0)
-            right_extension = max(square_x + square_size - image.shape[1], 0)
-            bottom_extension = max(square_y + square_size - image.shape[0], 0)
-
-            # Extend the image beyond its boundaries
-            extended_image = cv2.copyMakeBorder(image, top_extension, bottom_extension, left_extension, right_extension, cv2.BORDER_CONSTANT, value=(0))
-
-            # Adjust the square coordinates due to extension
-            square_x += left_extension
-            square_y += top_extension
-
-            # The final square x,y,w,h
-            square = square_x, square_y, square_size, square_size
-            # Final crop
-            output = extended_image[square_y:square_y+square_size, square_x:square_x+square_size]
-            return output
-
-        else:
-            # The final square x,y,w,h
-            square = square_x, square_y, square_size, square_size
-            # Final crop
-            output = image[square_y:square_y+square_size, square_x:square_x+square_size]
-            return output
+        output = image[y:y+h, x:x+w]
+        dst = cv2.copyMakeBorder(output,int(h/10),int(h/10), int(w/10), int(w/10),cv2.BORDER_CONSTANT, value=0)
+        return dst
         
 
     def draw_game(self):
@@ -243,11 +208,22 @@ class PyGameMouse_thread(QThread):
                     elif self.predict_rect.collidepoint(event.pos):
                         gray_image = self.process_image()
                         test = self.crop_image(gray_image)
-                        cv2.imwrite('image1.jpg', test)
+
                         test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
-                        test = cv2.normalize(test, test, 0, 1, cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+                        cv2.imwrite('image0.jpg', test)
+                        _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                        cv2.imwrite('image1.jpg', test)
+                        blurred_image = cv2.GaussianBlur(test, (1, 1), 0)
+                        # Define a kernel for morphological operations
+                        kernel = np.ones((1, 1), np.uint8)
+
+                        # Apply morphological operations to thin the edges
+                        # test = cv2.morphologyEx(test, cv2.MORPH_CLOSE, kernel)
+                        test = cv2.erode(test, kernel, iterations=10)
+                        cv2.imwrite('image2.jpg', test)
+                        test = test/255.0
                         
-                        cv2.imwrite('image2.jpg', test*255)
+                        
                         test = np.expand_dims(test, axis=0)
                         with open('encoder.pickle','rb') as f:
                             encode=pickle.load(f)
@@ -264,7 +240,6 @@ class PyGameMouse_thread(QThread):
                         #cv2.imshow("image1.jpg", test)                
                         
                         
-
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -290,7 +265,7 @@ class PyGameMouse_thread(QThread):
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption('Capstone Project')
         self.background_color = pygame.Color('White')
-        self.model = load_model("12_classes.h5")
+        self.model = load_model("12_classes.keras")
         self.predict_rect = pygame.Rect(0, 300, 100, 50)
         self.eraser_rect = pygame.Rect(0, 350, 100, 50)
         self.black_rect = pygame.Rect(0, 400, 100, 50)

@@ -24,11 +24,33 @@ class capstone():
         self.radiobutton = self.window.radiobutton
         self.comboBox = self.window.comboBox
         self.stop_button = self.window.stop_button
-        self.slider = self.window.slider_
         self.startbutton = self.window.start_button
         self.textbox = self.window.textbox
         self.pygamebutton = self.window.launchpybutton
         self.comboBox_pygame = self.window.comboBox_pygame
+        # ---- Caliberation buttons
+        self.caliberate_mode = self.window.caliberate_checkBox
+        self.caliberate_load = self.window.caliberate_load
+        self.caliberate_TPL = self.window.checkBox_TPL
+        self.caliberate_TPR = self.window.checkBox_TPR
+        self.caliberate_BTL = self.window.checkBox_BTL
+        self.caliberate_BTR = self.window.checkBox_BTR
+        self.value_tplx = self.window.tplx
+        self.value_tplx.setRange(0, 1000) 
+        self.value_tply = self.window.tply
+        self.value_tply.setRange(0, 1000) 
+        self.value_tprx = self.window.tprx
+        self.value_tprx.setRange(0, 1000) 
+        self.value_tpry = self.window.tpry
+        self.value_tpry.setRange(0, 1000) 
+        self.value_btlx = self.window.btlx
+        self.value_btlx.setRange(0, 1000) 
+        self.value_btly = self.window.btly
+        self.value_btly.setRange(0, 1000) 
+        self.value_btrx = self.window.btrx
+        self.value_btrx.setRange(0, 1000) 
+        self.value_btry = self.window.btry
+        self.value_btry.setRange(0, 1000) 
     # ---------- Graphic Box --------------------
         self.graphicview = self.window.graphicview
         self.graphic_width = self.graphicview.size().width()
@@ -37,15 +59,54 @@ class capstone():
         self.stop_signal = False
     # ---------- connection --------------------------
         self.radiobutton.setChecked(False)
+        self.caliberate_load.setChecked(False)
         self.radiobutton.toggled.connect(self.on_radio_button_toggled)
         self.startbutton.clicked.connect(self.run_start)
         self.stop_button.clicked.connect(self.stop_camera_opencv)
         self.pygamebutton.clicked.connect(self.run_pygame)
         self.comboBox_pygame.currentTextChanged.connect(self.select_bcombo_mode)
+        self.caliberate_mode.stateChanged.connect(self.caliberate_mode_)
+        self.caliberate_load.stateChanged.connect(self.caliberate_load_)
+        self.caliberate_TPL.stateChanged.connect(self.update_xy_)
+        self.caliberate_TPR.stateChanged.connect(self.update_xy_)
     # ---------- Thread Initialization-------------------------
         self.opencv_thread = image_thread()
         self.pygame_thread = PyGameMouse_thread()
         self.pygame_IRThread = PyGameIR_thread()
+
+    def value_add_xy_(self,mssg):
+        print(f"im in setvalue {mssg}")
+        if (self.caliberate_TPL.isChecked()):
+            self.value_tplx.setValue(mssg[0])
+            self.value_tply.setValue(mssg[1])
+        elif(self.caliberate_TPR.isChecked()):
+            self.value_tprx.setValue(mssg[0])
+            self.value_tpry.setValue(mssg[1])
+        elif(self.caliberate_BTL.isChecked()):
+            self.value_btlx.setValue(mssg[0])
+            self.value_btly.setValue(mssg[1])
+        elif(self.caliberate_BTR.isChecked()):
+            self.value_btrx.setValue(mssg[0])
+            self.value_btry.setValue(mssg[1])
+
+    def update_xy_(self):
+        if (self.caliberate_mode.isChecked()):
+                self.opencv_thread.x_y_update.connect(self.value_add_xy_)
+        
+    def caliberate_load_(self):
+        if (self.caliberate_load.isChecked()):
+            self.update_output_terminal("Loading caliberation file")
+        else:
+            
+            self.update_output_terminal("Disable caliberation loading")
+
+    def caliberate_mode_(self):
+        if (self.caliberate_mode.isChecked()):
+            self.opencv_thread.caliberate_on()
+            self.update_output_terminal("Caliberation mode activated")
+        else:
+            self.opencv_thread.caliberate_off()
+            self.update_output_terminal("Caliberation mode deactivated")
 
     def select_bcombo_mode(self):
         self.pygame_thread.select_mode_func(self.comboBox_pygame.currentText())
@@ -62,6 +123,7 @@ class capstone():
         elif((self.comboBox.currentText() != "No camera selected")and (self.comboBox_pygame.currentText() == "IR_Pen")):
             if (len(self.image) != 0):
                 self.update_output_terminal("Starting the pygame --IR mode")
+                self.update_caliberation_coordinates()
                 self.pygame_IRThread.stop_pygame = False
                 self.pygame_IRThread.pygame_end = False
                 self.pygame_IRThread.select_mode_func(self.comboBox_pygame.currentText())
@@ -87,6 +149,7 @@ class capstone():
             self.update_output_terminal("stop searching cameras")
     
     def run_thread(self):
+
         current_camera_index = self.window.comboBox.currentIndex()
         camera_name = self.window.comboBox.itemText(current_camera_index)
         self.opencv_thread.camera_index = camera_name
@@ -95,6 +158,7 @@ class capstone():
         self.update_output_terminal("Video Broadcasting")
         self.opencv_thread.message_updated.connect(self.update_output_terminal)
         self.opencv_thread.image_updated.connect(self.render_graphics)
+        self.opencv_thread.original_image_update.connect(self.original_image)
         self.opencv_thread.start()
 
     def update_output_terminal(self,mssg):
@@ -106,6 +170,9 @@ class capstone():
         else:
             self.opencv_thread.not_stoped = False
             self.run_thread()
+
+    def original_image(self,Image):
+        self.pygame_IRThread.image = Image
 
     def render_graphics(self,image):
         self.image = image
@@ -126,6 +193,16 @@ class capstone():
         pixmap_item.setScale(self.graphicview.width() / pixmap_item.boundingRect().width())
         # Add the QGraphicsPixmapItem to the scene
         scene.addItem(pixmap_item)
+
+    def update_caliberation_coordinates(self):
+        self.opencv_thread.value_tplx = int(self.value_tplx.value())
+        self.opencv_thread.value_tply = int(self.value_tply.value())
+        self.opencv_thread.value_tprx = int(self.value_tprx.value())
+        self.opencv_thread.value_tpry = int(self.value_tpry.value())
+        self.opencv_thread.value_btlx = int(self.value_btlx.value())
+        self.opencv_thread.value_btly = int(self.value_btly.value())
+        self.opencv_thread.value_btrx = int(self.value_btrx.value())
+        self.opencv_thread.value_btry = int(self.value_btry.value())
 
 if __name__ == "__main__":
     start_capston = capstone()
