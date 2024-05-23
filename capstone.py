@@ -136,6 +136,7 @@ def draw_game():
     size = 10
     draw_buttons()
     drawing = False
+    volume = None
     DRAW_MOUSE_POS = pygame.mouse.get_pos()
     
     
@@ -196,6 +197,14 @@ def draw_game():
                     
                 elif BACK_BUTTON.checkForInput(event.pos):
                     main_menu()
+                
+                elif MUSIC_BUTTON.checkForInput(event.pos):
+                    if volume == True or volume == None:
+                        pygame.mixer.music.set_volume(0.0)
+                        volume = False
+                    elif volume == False:
+                        pygame.mixer.music.set_volume(0.3)
+                        volume = True
                     
                 elif PREDICT_BUTTON.checkForInput(event.pos):
                     gray_image = process_image()
@@ -322,6 +331,10 @@ BG = pygame.image.load("Assets/background1.png")
 logo = pygame.image.load("Assets/logo.png")
 logo_size = (screen_width/2160, screen_height/1440)
 logo1 = pygame.transform.scale(logo, (logo_size))
+pygame.mixer.init()
+pygame.mixer.music.load("Assets/music.mp3")
+pygame.mixer.music.play(loops=-1)
+pygame.mixer.music.set_volume(0.3)
 
 
 predict_rect = pygame.Rect(screen_width/2 -100, screen_height - 100, 400, 50)
