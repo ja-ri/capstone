@@ -49,7 +49,7 @@ class Button():
 			self.text = self.font.render(self.text_input, True, self.base_color)
  
 def draw_buttons():
-    global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON
+    global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON, BACK_BUTTON, MUSIC_BUTTON, ANIMALSOUND_BUTTON
     DRAW_MOUSE_POS = pygame.mouse.get_pos()
     PREDICT_BUTTON = Button(image=None, pos=(50, 300), 
                         text_input="PREDICT", font=get_font(25), base_color="Black", hovering_color="White")
@@ -65,20 +65,16 @@ def draw_buttons():
                         text_input="BLUE", font=get_font(25), base_color="Blue", hovering_color="White")
     CLEAR_BUTTON = Button(image=None, pos=(50, 600), 
                         text_input="CLEAR", font=get_font(25), base_color="Black", hovering_color="White")
-    for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON]:
+    ANIMALSOUND_BUTTON = Button(image=None, pos=(50, 50),
+                        text_input="SOUND", font=get_font(25), base_color="Black", hovering_color="White")
+    MUSIC_BUTTON = Button(image=None, pos=(50, 100),
+                        text_input="MUSIC", font=get_font(25), base_color="Black", hovering_color="White")
+    BACK_BUTTON = Button(image=None, pos=(50, screen_height-50),
+                        text_input="MENU", font=get_font(25), base_color="Black", hovering_color="White")
+    for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, ANIMALSOUND_BUTTON, MUSIC_BUTTON, BACK_BUTTON]:
         button.changeColor(DRAW_MOUSE_POS)
         button.update(screen)
 
-def draw_start_menu():
-    #draws start menu
-    screen.fill((background_color))
-    mainmenu = pygame_menu.Menu('Capstone', screen_width, screen_height, theme=mytheme)
-    mainmenu.add.button('Start', draw_game)
-    mainmenu.add.button('Quit', pygame_menu.events.EXIT)
-    pygame_menu.widgets.HighlightSelection(border_width=1, margin_x=16, margin_y=8)
-  
-    mainmenu.mainloop(screen)
-    pygame.display.update()
     
 def process_image():
     #processing image to desired format
@@ -138,10 +134,10 @@ def draw_game():
     screen.fill((background_color))
     color = 'Black'
     size = 10
-    DRAW_MOUSE_POS = pygame.mouse.get_pos()
     draw_buttons()
     drawing = False
-
+    DRAW_MOUSE_POS = pygame.mouse.get_pos()
+    
     
     
     while True: 
@@ -198,6 +194,9 @@ def draw_game():
                     screen.fill('White')
                     draw_buttons()
                     
+                elif BACK_BUTTON.checkForInput(event.pos):
+                    main_menu()
+                    
                 elif PREDICT_BUTTON.checkForInput(event.pos):
                     gray_image = process_image()
                     test = crop_image(gray_image)
@@ -213,17 +212,14 @@ def draw_game():
                     max_index = np.argmax(prediction)
                     one_hot_encoded = np.zeros_like(prediction)
                     one_hot_encoded[0][max_index] = 1
-                    #print(prediction)
-                    #print(one_hot_encoded)
-                    #print(f"prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}")
-                    predict_text = get_font(25).render(f"prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}", True, "Black") 
-                    predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                    max_value = round((prediction.max() * 100), 1)
+                    predict_text = get_font(25).render(f"Prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}", True, "Black", "White") 
+                    predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
                     screen.blit(predict_text, predict_rect)
-                    pygame.display.update()
-                    
-                    #testausta
-                    #cv2.imwrite('image1.jpg', test)
-                    #cv2.imshow("image1.jpg", test)                
+                    points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
+                    points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                    screen.blit(points_text, points_rect)
+                    pygame.display.update()              
                     
                     
 
@@ -278,7 +274,10 @@ def main_menu():
         screen.blit(BG, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
-
+        
+        #logo_rect = logo1.get_rect()
+        #logo_rect.center = (screen_width / 2, screen_height /6)
+        #screen.blit(logo1, logo_rect.topleft)
         MENU_TEXT = get_font(150).render("SKETCHIMALS", True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(screen_width/2, 120))
 
@@ -319,15 +318,14 @@ pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
 model = load_model("12_classes.h5")
 BG = pygame.image.load("Assets/background1.png")
+logo = pygame.image.load("Assets/logo.png")
+logo_size = (screen_width/2160, screen_height/1440)
+logo1 = pygame.transform.scale(logo, (logo_size))
 
 
-predict_rect = pygame.Rect(screen_width/2 -100, screen_height - 50, 400, 100)
-eraser_rect = pygame.Rect(0, 350, 100, 50)
-black_rect = pygame.Rect(0, 400, 100, 50)
-red_rect = pygame.Rect(0, 450, 100, 50)
-green_rect = pygame.Rect(0, 500, 100, 50)
-blue_rect = pygame.Rect(0, 550, 100, 50)
-clear_rect = pygame.Rect(0, 600, 100, 50)
+predict_rect = pygame.Rect(screen_width/2 -100, screen_height - 100, 400, 50)
+points_rect = pygame.Rect(screen_width/2 - 100, screen_height - 50, 400, 50)
+
 game_state = "start_menu"
 
 
