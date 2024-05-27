@@ -1,19 +1,17 @@
 import pygame
 from time import sleep
 import sys
-import pygame_menu
-from pygame_menu import themes
-from PIL import Image, ImageOps
 import numpy as np
+from PIL import Image, ImageOps
 import cv2
-import matplotlib.pyplot as plt
 import glob, os
 import random
 from keras.utils import to_categorical
 from keras.models import load_model
 from sklearn.preprocessing import OneHotEncoder
 import pickle
-from win32api import GetSystemMetrics
+from screeninfo import get_monitors
+
 
 def get_font(size): 
     return pygame.font.Font("Assets/font.ttf", size)       
@@ -37,12 +35,12 @@ class Button():
 			screen.blit(self.image, self.rect)
 		screen.blit(self.text, self.text_rect)
 
-	def checkForInput(self, position):
+	def check_for_input(self, position):
 		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
 			return True
 		return False
 
-	def changeColor(self, position):
+	def change_color(self, position):
 		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
 			self.text = self.font.render(self.text_input, True, self.hovering_color)
 		else:
@@ -72,7 +70,7 @@ def draw_buttons():
     BACK_BUTTON = Button(image=None, pos=(50, screen_height-50),
                         text_input="MENU", font=get_font(25), base_color="Black", hovering_color="White")
     for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, ANIMALSOUND_BUTTON, MUSIC_BUTTON, BACK_BUTTON]:
-        button.changeColor(DRAW_MOUSE_POS)
+        button.change_color(DRAW_MOUSE_POS)
         button.update(screen)
 
     
@@ -129,18 +127,13 @@ def crop_image(image):
     
 
 def draw_game():
-    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
-    sub = screen.subsurface(subrect)
     screen.fill((background_color))
     color = 'Black'
     size = 10
     draw_buttons()
     drawing = False
     volume = None
-    DRAW_MOUSE_POS = pygame.mouse.get_pos()
-    
-    
-    
+     
     while True: 
         for event in pygame.event.get():
             (a, s) = pygame.mouse.get_pos()
@@ -171,34 +164,34 @@ def draw_game():
                     last_pos = end_pos  # Update last position
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if RED_BUTTON.checkForInput(event.pos):
+                if RED_BUTTON.check_for_input(event.pos):
                     color = 'Red'
                     size = 10
                
-                elif GREEN_BUTTON.checkForInput(event.pos):
+                elif GREEN_BUTTON.check_for_input(event.pos):
                     color = 'Green'
                     size = 10
                     
-                elif BLUE_BUTTON.checkForInput(event.pos):
+                elif BLUE_BUTTON.check_for_input(event.pos):
                     color = 'Blue'
                     size = 10
                 
-                elif BLACK_BUTTON.checkForInput(event.pos):
+                elif BLACK_BUTTON.check_for_input(event.pos):
                     color = 'Black'
                     size = 10
                     
-                elif ERASER_BUTTON.checkForInput(event.pos):
+                elif ERASER_BUTTON.check_for_input(event.pos):
                     color = 'White'
                     size = 40
 
-                elif CLEAR_BUTTON.checkForInput(event.pos):
+                elif CLEAR_BUTTON.check_for_input(event.pos):
                     screen.fill('White')
                     draw_buttons()
                     
-                elif BACK_BUTTON.checkForInput(event.pos):
+                elif BACK_BUTTON.check_for_input(event.pos):
                     main_menu()
                 
-                elif MUSIC_BUTTON.checkForInput(event.pos):
+                elif MUSIC_BUTTON.check_for_input(event.pos):
                     if volume == True or volume == None:
                         pygame.mixer.music.set_volume(0.0)
                         volume = False
@@ -206,13 +199,12 @@ def draw_game():
                         pygame.mixer.music.set_volume(0.3)
                         volume = True
                     
-                elif PREDICT_BUTTON.checkForInput(event.pos):
+                elif PREDICT_BUTTON.check_for_input(event.pos):
                     gray_image = process_image()
                     test = crop_image(gray_image)
                     cv2.imwrite('image1.jpg', test)
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
                     test = cv2.normalize(test, test, 0, 1, cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-                    
                     cv2.imwrite('image2.jpg', test*255)
                     test = np.expand_dims(test, axis=0)
                     with open('encoder.pickle','rb') as f:
@@ -264,31 +256,30 @@ def options():
                             text_input="BACK", font=get_font(100), base_color="Black", hovering_color="White")
 
         for button in [OPTIONS_MOUSE, OPTIONS_TOUCHSCREEN, OPTIONS_IRPEN, OPTIONS_BACK]:
-            button.changeColor(OPTIONS_MOUSE_POS)
+            button.change_color(OPTIONS_MOUSE_POS)
             button.update(screen)
 
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if OPTIONS_MOUSE.checkForInput(OPTIONS_MOUSE_POS):
+                if OPTIONS_MOUSE.check_for_input(OPTIONS_MOUSE_POS):
                     draw_game()
-                #if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                #if OPTIONS_BUTTON.check_for_input(MENU_MOUSE_POS):
                  #   options()
-                if OPTIONS_TOUCHSCREEN.checkForInput(OPTIONS_MOUSE_POS):
+                if OPTIONS_TOUCHSCREEN.check_for_input(OPTIONS_MOUSE_POS):
                     draw_game()
-                if OPTIONS_IRPEN.checkForInput(OPTIONS_MOUSE_POS):
+                if OPTIONS_IRPEN.check_for_input(OPTIONS_MOUSE_POS):
                     draw_game()
-                if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
+                if OPTIONS_BACK.check_for_input(OPTIONS_MOUSE_POS):
                     main_menu()
 
         pygame.display.update()
 
 def main_menu():
     while True:
-        screen.blit(BG, (0, 0))
+        screen.blit(BG1, (0,0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
-        
         #logo_rect = logo1.get_rect()
         #logo_rect.center = (screen_width / 2, screen_height /6)
         #screen.blit(logo1, logo_rect.topleft)
@@ -303,7 +294,7 @@ def main_menu():
         screen.blit(MENU_TEXT, MENU_RECT)
 
         for button in [PLAY_BUTTON, QUIT_BUTTON]:
-            button.changeColor(MENU_MOUSE_POS)
+            button.change_color(MENU_MOUSE_POS)
             button.update(screen)
         
         for event in pygame.event.get():
@@ -311,9 +302,9 @@ def main_menu():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                if PLAY_BUTTON.check_for_input(MENU_MOUSE_POS):
                     options()
-                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                if QUIT_BUTTON.check_for_input(MENU_MOUSE_POS):
                     pygame.quit()
                     sys.exit()
 
@@ -321,8 +312,8 @@ def main_menu():
 
 pygame.init()
 clock = pygame.time.Clock()
-screen_width = GetSystemMetrics(0)
-screen_height = GetSystemMetrics(1)
+screen_width = get_monitors()[0].width
+screen_height = get_monitors()[0].height
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
@@ -331,17 +322,17 @@ BG = pygame.image.load("Assets/background1.png")
 logo = pygame.image.load("Assets/logo.png")
 logo_size = (screen_width/2160, screen_height/1440)
 logo1 = pygame.transform.scale(logo, (logo_size))
+BG1 = pygame.transform.scale(BG, (screen_width, screen_height))
+#code for the background music
 pygame.mixer.init()
 pygame.mixer.music.load("Assets/music.mp3")
 pygame.mixer.music.play(loops=-1)
 pygame.mixer.music.set_volume(0.3)
 
-
 predict_rect = pygame.Rect(screen_width/2 -100, screen_height - 100, 400, 50)
 points_rect = pygame.Rect(screen_width/2 - 100, screen_height - 50, 400, 50)
 
 game_state = "start_menu"
-
 
 while True:
     clock.tick(60)
@@ -356,3 +347,6 @@ while True:
         draw_game()
         
     pygame.display.flip()
+
+
+#Pig, elephant, cow, frog, monkey, dolphin, parrot, snake, dog, cat, sheep, horse
