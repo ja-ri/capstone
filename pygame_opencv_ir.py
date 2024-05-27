@@ -51,10 +51,12 @@ class PyGameIR_thread(QThread):
 
     def run(self):
         print(f"selected thread mode {self.select_mode}")
+        print("Starting pygame")
         if self.select_mode == "IR_Pen":
             self.main_ir()
+        # pygame.quit()
         print("Ending the pygame")
-        self.quit()
+        # self.quit()
 
     def draw_buttons(self):
         # default font initialized
@@ -180,16 +182,18 @@ class PyGameIR_thread(QThread):
         drawing = False
         last_pos = (0,0)
         
-        while True: 
+        while not self.stop_pygame: 
             
-            # Convert frame to grayscale
-            gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+            # print(self.screen_height)
+            # print(self.screen_width)
+            # # Convert frame to grayscale
+            # gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
             
-            # Thresholding to isolate bright areas (IR light)
-            _, thresh = cv2.threshold(gray, 250, 255, cv2.THRESH_BINARY)
+            # # Thresholding to isolate bright areas (IR light)
+            # _, thresh = cv2.threshold(gray, 125, 255, cv2.THRESH_BINARY)
             
             # Find contours
-            contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours, _ = cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
             # Iterate through contours
             for contour in contours:
@@ -201,14 +205,16 @@ class PyGameIR_thread(QThread):
                     # Draw centroid on the frame
                     # cv2.circle(self.image, (cX, cY), 5, (0, 0, 255), -1)
                     # Print normalized coordinates
-                    normalized_cX = int(cX * self.screen_width / self.image.shape[0])
-                    normalized_cY = int(cY * self.screen_height / self.image.shape[1])
+                    # normalized_cX = int(cX * self.screen_width / self.image.shape[0])
+                    # normalized_cY = int(cY * self.screen_height / self.image.shape[1])
+                    normalized_cX = cX
+                    normalized_cY = cY
                     # print(f"image width height {self.image.shape[0],self.image.shape[1]}")
                     # print(f"screen width and height {self.screen_width ,self.screen_height}")
                     # print(f"cx and cy {cX,cY}")
                     # print(f"Normalized cx and cy {normalized_cX,normalized_cY}")
                     end_pos =(normalized_cX,normalized_cY)
-                    pygame.draw.circle(self.screen, color, (normalized_cX, normalized_cY),size)
+                    # pygame.draw.circle(self.screen, color, (normalized_cX, normalized_cY),size)
 
                     exclude_x = ((self.predict_rect.x ),(self.predict_rect.x + self.eraser_rect.width))
                     exclude_y = ((self.predict_rect.y ),(self.predict_rect.y + self.clear_rect.y + self.clear_rect.height))
@@ -220,8 +226,8 @@ class PyGameIR_thread(QThread):
                             dx = end_pos[0] - last_pos[0]
                             dy = end_pos[1] - last_pos[1]
                             distance = max(abs(dx), abs(dy))
-                            # print(f"max_ditstance {distance}")
-                            if (distance < 20):
+                            print(f"max_ditstance {distance}")
+                            if (distance < 100):
                                 for i in range(1, distance + 1):
                                     x = last_pos[0] + int(float(i) / distance * dx)
                                     y = last_pos[1] + int(float(i) / distance * dy)
@@ -272,17 +278,19 @@ class PyGameIR_thread(QThread):
                         print(prediction)
                         print(one_hot_encoded)
                         print(f"prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}")
+                        predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
+                        print(f"prediction is {predicted_variables}")
+                        font = pygame.font.Font(None, 60)
+                        text_surface = font.render(f"Prediction: {predicted_variables}", True, (0, 0, 0))
+                        # text_rect = text_surface.get_rect(center=(self.screen_width // 2, self.screen_height - 20))
+                        self.screen.blit(text_surface,(10,10))    
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.stop_pygame  = True
-                    pygame.quit()
-                    sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.stop_pygame  = True
-                        pygame.quit()
-                        sys.exit()
                     elif event.key == pygame.K_c:
                         self.screen.fill('White')
                         self.draw_buttons()
@@ -293,7 +301,9 @@ class PyGameIR_thread(QThread):
         pygame.init()
         self.clock = pygame.time.Clock()
         self.screen_width = get_monitors()[0].width
+
         self.screen_height = get_monitors()[0].height
+
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption('Capstone Project')
         self.background_color = pygame.Color('White')
@@ -307,16 +317,14 @@ class PyGameIR_thread(QThread):
         self.clear_rect = pygame.Rect(0, 600, 100, 50)
         self.mytheme = pygame_menu.themes.Theme(background_color =(0, 0, 0, 0), title_background_color = (4, 47, 126), title_font_shadow=True, widget_padding=25)
         self.game_state = "start_menu"
-        while True:
-            self.clock.tick(60)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-
-            if self.game_state == "start_menu":
-                self.draw_start_menu()
-            if self.game_state == "draw_game":
-                self.draw_game()
+        # while not self.stop_pygame:
+        self.clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.stop_pygame  = True
+        if self.game_state == "start_menu":
+            self.draw_start_menu()
+        if self.game_state == "draw_game":
+            self.draw_game()
                 
-            pygame.display.flip()
+        pygame.display.flip()

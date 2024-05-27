@@ -28,9 +28,11 @@ class capstone():
         self.textbox = self.window.textbox
         self.pygamebutton = self.window.launchpybutton
         self.comboBox_pygame = self.window.comboBox_pygame
+        self.slider_box = self.window.slider_box
         # ---- Caliberation buttons
         self.caliberate_mode = self.window.caliberate_checkBox
         self.caliberate_load = self.window.caliberate_load
+        self.caliberate_save = self.window.caliberate_save
         self.caliberate_TPL = self.window.checkBox_TPL
         self.caliberate_TPR = self.window.checkBox_TPR
         self.caliberate_BTL = self.window.checkBox_BTL
@@ -51,6 +53,8 @@ class capstone():
         self.value_btrx.setRange(0, 1000) 
         self.value_btry = self.window.btry
         self.value_btry.setRange(0, 1000) 
+        self.slider = self.window.horizontalSlider
+        self.slider_box.setValue(self.slider.value())
     # ---------- Graphic Box --------------------
         self.graphicview = self.window.graphicview
         self.graphic_width = self.graphicview.size().width()
@@ -66,13 +70,37 @@ class capstone():
         self.pygamebutton.clicked.connect(self.run_pygame)
         self.comboBox_pygame.currentTextChanged.connect(self.select_bcombo_mode)
         self.caliberate_mode.stateChanged.connect(self.caliberate_mode_)
-        self.caliberate_load.stateChanged.connect(self.caliberate_load_)
+        self.caliberate_load.stateChanged.connect(self.load_calib_values)
         self.caliberate_TPL.stateChanged.connect(self.update_xy_)
         self.caliberate_TPR.stateChanged.connect(self.update_xy_)
+        self.caliberate_save.stateChanged.connect(self.save_calib_values)
+        self.slider.valueChanged.connect(self.slider_chaged_)
     # ---------- Thread Initialization-------------------------
         self.opencv_thread = image_thread()
         self.pygame_thread = PyGameMouse_thread()
         self.pygame_IRThread = PyGameIR_thread()
+        self.opencv_thread.thesh_value = self.slider.value()
+
+    def slider_chaged_(self):
+        self.slider_box.setValue(self.slider.value())
+        self.opencv_thread.thesh_value = self.slider.value()
+
+    def load_calib_values(self):
+        # Open the file in read mode
+        if self.caliberate_load.isChecked():
+            with open('caliberation_data.txt', 'r') as file:
+                # Iterate over each line in the file
+                for i,line in enumerate(file):
+                    items = [self.value_tplx,self.value_tply,self.value_tprx , self.value_tpry,self.value_btlx,self.value_btly,self.value_btrx,self.value_btry]
+                    items[i].setValue(int(line.strip()))
+                    
+
+    def save_calib_values(self):
+        if self.caliberate_save.isChecked():
+            with open('caliberation_data.txt', 'w') as file:
+                # Append some text to the file
+                content = f"{self.value_tplx.value()}\n{self.value_tply.value()}\n{self.value_tprx.value()}\n{self.value_tpry.value()}\n{self.value_btlx.value()}\n{self.value_btly.value()}\n{self.value_btrx.value()}\n{self.value_btry.value()} "
+                file.write(content)
 
     def value_add_xy_(self,mssg):
         print(f"im in setvalue {mssg}")
@@ -149,7 +177,6 @@ class capstone():
             self.update_output_terminal("stop searching cameras")
     
     def run_thread(self):
-
         current_camera_index = self.window.comboBox.currentIndex()
         camera_name = self.window.comboBox.itemText(current_camera_index)
         self.opencv_thread.camera_index = camera_name
@@ -178,7 +205,8 @@ class capstone():
         self.image = image
         self.pygame_IRThread.image = self.image
         # Convert the numpy array image to a QImage
-        q_image = QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0], QImage.Format_RGB888).rgbSwapped()
+        # q_image = QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0], QImage.Format_RGB888).rgbSwapped()
+        q_image = QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0], QImage.Format_Grayscale8)
         # Get the scene associated with the QGraphicsView
         scene = self.graphicview.scene()
         # If no scene exists, create a new one

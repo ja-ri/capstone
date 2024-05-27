@@ -21,7 +21,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>50</y>
+      <y>20</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -34,7 +34,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>50</y>
+      <y>20</y>
       <width>16</width>
       <height>23</height>
      </rect>
@@ -53,7 +53,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>100</y>
+      <y>50</y>
       <width>111</width>
       <height>17</height>
      </rect>
@@ -66,7 +66,7 @@
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>100</y>
+      <y>50</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -80,8 +80,8 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>210</y>
+      <x>20</x>
+      <y>140</y>
       <width>141</width>
       <height>20</height>
      </rect>
@@ -124,7 +124,6 @@
     </property>
     <property name="font">
      <font>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -153,7 +152,6 @@
     </property>
     <property name="font">
      <font>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -172,7 +170,6 @@
     </property>
     <property name="font">
      <font>
-      <weight>75</weight>
       <bold>true</bold>
       <underline>false</underline>
       <strikeout>false</strikeout>
@@ -186,7 +183,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>146</y>
+      <y>76</y>
       <width>101</width>
       <height>21</height>
      </rect>
@@ -199,7 +196,7 @@
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>150</y>
+      <y>80</y>
       <width>151</width>
       <height>21</height>
      </rect>
@@ -223,8 +220,8 @@
    <widget class="QCheckBox" name="caliberate_checkBox">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>210</y>
+      <x>180</x>
+      <y>140</y>
       <width>16</width>
       <height>20</height>
      </rect>
@@ -302,7 +299,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>190</y>
+      <y>120</y>
       <width>291</width>
       <height>16</height>
      </rect>
@@ -437,8 +434,8 @@
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>230</y>
+      <x>20</x>
+      <y>160</y>
       <width>141</width>
       <height>20</height>
      </rect>
@@ -450,8 +447,8 @@
    <widget class="QCheckBox" name="caliberate_load">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>230</y>
+      <x>180</x>
+      <y>160</y>
       <width>16</width>
       <height>20</height>
      </rect>
@@ -515,8 +512,8 @@
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>390</y>
+      <x>20</x>
+      <y>180</y>
       <width>141</width>
       <height>20</height>
      </rect>
@@ -528,14 +525,59 @@
    <widget class="QCheckBox" name="caliberate_save">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>390</y>
+      <x>180</x>
+      <y>180</y>
       <width>16</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>220</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Adjust threshold</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="horizontalSlider">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>220</y>
+      <width>160</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="value">
+     <number>200</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="slider_box">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>220</y>
+      <width>51</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>1000</number>
     </property>
    </widget>
   </widget>
@@ -545,7 +587,7 @@
      <x>0</x>
      <y>0</y>
      <width>1086</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>

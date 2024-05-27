@@ -42,7 +42,6 @@ class PyGameMouse_thread(QThread):
         self.pygame_end = False
         self.select_mode = ""
     
-
     def select_mode_func(self,mode):
         self.select_mode = mode
 
@@ -50,11 +49,14 @@ class PyGameMouse_thread(QThread):
         self.stop_pygame = True
 
     def run(self):
+        print(f"\033[31mstarting thread\033[0m")
         print(f"selected thread mode {self.select_mode}")
         if self.select_mode == "Mouse":
             self.main_ir()
-        print("Ending the pygame")
-        self.quit()
+        print(f"\033[31m python node exited \033[0m")
+        self.stop_pygame = False
+        self.pygame_end = False
+        self.select_mode = ""
 
     def draw_buttons(self):
         # default font initialized
@@ -112,12 +114,12 @@ class PyGameMouse_thread(QThread):
     def draw_start_menu(self):
         #draws start menu
         self.screen.fill((self.background_color))
-        mainmenu = pygame_menu.Menu('Capstone', self.screen_width, self.screen_height, theme=self.mytheme)
-        mainmenu.add.button('Start', self.draw_game)
-        mainmenu.add.button('Quit', pygame_menu.events.EXIT)
+        self.mainmenu = pygame_menu.Menu('Capstone', self.screen_width, self.screen_height, theme=self.mytheme)
+        self.mainmenu.enable()
+        self.mainmenu.add.button('Start', self.draw_game)
+        self.mainmenu.add.button('Quit', pygame_menu.events.EXIT)
         pygame_menu.widgets.HighlightSelection(border_width=1, margin_x=16, margin_y=8)
-    
-        mainmenu.mainloop(self.screen)
+        self.mainmenu.mainloop(self.screen)
         pygame.display.update()
         
     def process_image(self):
@@ -138,7 +140,6 @@ class PyGameMouse_thread(QThread):
         output = image[y:y+h, x:x+w]
         dst = cv2.copyMakeBorder(output,int(h/10),int(h/10), int(w/10), int(w/10),cv2.BORDER_CONSTANT, value=0)
         return dst
-        
 
     def draw_game(self):
         subrect = pygame.Rect(100, 0, self.screen_width - 100, self.screen_height)
@@ -148,15 +149,13 @@ class PyGameMouse_thread(QThread):
         size = 10
         self.draw_buttons()
         drawing = False
-
-        
-        
-        while True: 
+        while not self.stop_pygame: 
             for event in pygame.event.get():
                 (a, s) = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
+                    self.stop_pygame = True
                     pygame.quit()
-                    sys.exit()
+                    # sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN and a>=100:
                     if event.button == 1:  # Left mouse button
                         drawing = True
@@ -208,7 +207,6 @@ class PyGameMouse_thread(QThread):
                     elif self.predict_rect.collidepoint(event.pos):
                         gray_image = self.process_image()
                         test = self.crop_image(gray_image)
-
                         test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
                         cv2.imwrite('image0.jpg', test)
                         _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
@@ -216,14 +214,11 @@ class PyGameMouse_thread(QThread):
                         blurred_image = cv2.GaussianBlur(test, (1, 1), 0)
                         # Define a kernel for morphological operations
                         kernel = np.ones((1, 1), np.uint8)
-
                         # Apply morphological operations to thin the edges
                         # test = cv2.morphologyEx(test, cv2.MORPH_CLOSE, kernel)
                         test = cv2.erode(test, kernel, iterations=10)
                         cv2.imwrite('image2.jpg', test)
                         test = test/255.0
-                        
-                        
                         test = np.expand_dims(test, axis=0)
                         with open('encoder.pickle','rb') as f:
                             encode=pickle.load(f)
@@ -233,28 +228,29 @@ class PyGameMouse_thread(QThread):
                         one_hot_encoded[0][max_index] = 1
                         print(prediction)
                         print(one_hot_encoded)
-                        print(f"prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}")
-                        
-                        #testausta
-                        #cv2.imwrite('image1.jpg', test)
-                        #cv2.imshow("image1.jpg", test)                
-                        
+                        predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
+                        print(f"prediction is {predicted_variables}")
+                        font = pygame.font.Font(None, 60)
+                        text_surface = font.render(f"Prediction: {predicted_variables}", True, (0, 0, 0))
+                        # text_rect = text_surface.get_rect(center=(self.screen_width // 2, self.screen_height - 20))
+                        self.screen.blit(text_surface,(10,10))           
                         
                 elif event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.stop_pygame = True
+                    # sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        pygame.quit()
-                        sys.exit()
+                        self.stop_pygame = True
+                        # sys.exit()
                     elif event.key == pygame.K_c:
                         self.screen.fill('White')
                         self.draw_buttons()
             pygame.display.update()
-
-
-
-
+        print(f"\033[31m exiting \033[0m")
+        self.mainmenu.disable()
+        # pygame_menu.Menu._exit
+        # exit()
+    
     def main_ir(self):
         pygame.init()
         self.clock = pygame.time.Clock()
@@ -275,16 +271,20 @@ class PyGameMouse_thread(QThread):
         self.clear_rect = pygame.Rect(0, 600, 100, 50)
         self.mytheme = pygame_menu.themes.Theme(background_color =(0, 0, 0, 0), title_background_color = (4, 47, 126), title_font_shadow=True, widget_padding=25)
         self.game_state = "start_menu"
-        while True:
+
+        while not self.stop_pygame:
             self.clock.tick(60)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-
             if self.game_state == "start_menu":
                 self.draw_start_menu()
             if self.game_state == "draw_game":
                 self.draw_game()
-                
             pygame.display.flip()
+        print(f"\033[31m exiting completely\033[0m")
+        pygame.quit()
+
+
+

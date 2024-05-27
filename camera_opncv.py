@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from PySide6.QtCore import QThread, Signal
+from screeninfo import get_monitors
 
 
 class image_thread(QThread):
@@ -28,6 +29,7 @@ class image_thread(QThread):
         self.value_btly = 0
         self.value_btrx = 0
         self.value_btry = 0
+        self.thesh_value = 0
 
 
     def stop(self):
@@ -53,7 +55,6 @@ class image_thread(QThread):
     def output_calib_image_ (self,image):
         total_value = [self.value_tplx ,  self.value_tply , self.value_tprx , self.value_tpry , self.value_btlx , self.value_btly , self.value_btrx ,self.value_btry]
         filtered = total_value.count(0)
-        print(filtered)
         if filtered != 8:
             # print("Calibrated image broadcasting")
             # Ensure that the slicing operation is within the bounds of the image
@@ -67,6 +68,7 @@ class image_thread(QThread):
 
             # Crop the image
             cropped_image = image[start_y:end_y, start_x:end_x]
+            cropped_image = cv2.resize(cropped_image,(get_monitors()[0].width ,get_monitors()[0].height))
             cropped_image = np.ascontiguousarray(cropped_image)
             return cropped_image
         else:
@@ -87,8 +89,9 @@ class image_thread(QThread):
         while not self.not_stoped:
             # print(f"width {width} height {height} channel {channel} stop is {stop}")
             # print(f"not stop {not_stoped}")
-            ret, frame = cap.read()  # Read a frame from the camera
-            original_image = frame
+            ret, frame = cap.read()  # Read a frame from the camera'
+            # print(frame.shape)
+            
             if (not ret):
                 self.emit_message("Error: Failed to read frame.")
                 break
@@ -101,10 +104,12 @@ class image_thread(QThread):
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             
             # Thresholding to isolate bright areas (IR light)
-            _, thresh = cv2.threshold(gray, 250, 255, cv2.THRESH_BINARY)
+            _, thresh = cv2.threshold(gray, self.thesh_value, 255, cv2.THRESH_BINARY)
             
             # Find contours
             contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            original_image = thresh
             
             # Iterate through contours
             for contour in contours:
@@ -114,14 +119,13 @@ class image_thread(QThread):
                     cX = int(M["m10"] / M["m00"])
                     cY = int(M["m01"] / M["m00"])
 
-                    print(cX,cY)
+                    # print(cX,cY)
                     coordinates = [cX,cY]
 
                     if (self.caliberate_flag):
                         self.emit_x_y(coordinates)
-                        cv2.drawContours(frame, contours, -1, (0, 255, 0), 2)
             
-            self.emit_image(self.output_calib_image_(frame))
+            self.emit_image(self.output_calib_image_(thresh))
             self.emit_original_image(self.output_calib_image_(original_image))
             
         cap.release()
