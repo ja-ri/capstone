@@ -9,7 +9,7 @@ from cameras import get_available_cameras
 import numpy as np
 from camera_opncv import image_thread
 #from pygame_opencv import PyGameMouse_thread
-#from pygame_opencv_ir import PyGameIR_thread
+from pygame_opencv_ir import PyGameIR_thread
 
 class capstone():
 
@@ -80,7 +80,7 @@ class capstone():
     # ---------- Thread Initialization-------------------------
         self.opencv_thread = image_thread()
         # self.pygame_thread = PyGameMouse_thread()
-        # self.pygame_IRThread = PyGameIR_thread()
+        self.pygame_IRThread = PyGameIR_thread()
         self.opencv_thread.thesh_value = self.slider.value()
 
     def slider_chaged_(self):
@@ -142,9 +142,6 @@ class capstone():
         self.pygame_thread.select_mode_func(self.comboBox_pygame.currentText())
         print(f"Current selcted moode is : {self.pygame_thread.select_mode}")
         
-    #def select_combo_mode(self):
-       # self.pygame_thread.select_mode_func(self.comboBox_pygame.currentText())
-
     def run_pygame(self):
         draw_game()
         

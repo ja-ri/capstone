@@ -48,7 +48,7 @@ class Button():
 			self.text = self.font.render(self.text_input, True, self.base_color)
  
 def draw_buttons():
-    global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON, BACK_BUTTON, MUSIC_BUTTON, ANIMALSOUND_BUTTON
+    global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON, BACK_BUTTON, ANIMALSOUND_BUTTON
     DRAW_MOUSE_POS = pygame.mouse.get_pos()
     PREDICT_BUTTON = Button(image=None, pos=(50, 300), 
                         text_input="PREDICT", font=get_font(25), base_color="Black", hovering_color="White")
@@ -66,11 +66,9 @@ def draw_buttons():
                         text_input="CLEAR", font=get_font(25), base_color="Black", hovering_color="White")
     ANIMALSOUND_BUTTON = Button(image=None, pos=(50, 50),
                         text_input="SOUND", font=get_font(25), base_color="Black", hovering_color="White")
-    MUSIC_BUTTON = Button(image=None, pos=(50, 100),
-                        text_input="MUSIC", font=get_font(25), base_color="Black", hovering_color="White")
     BACK_BUTTON = Button(image=None, pos=(50, screen_height-50),
                         text_input="MENU", font=get_font(25), base_color="Black", hovering_color="White")
-    for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, ANIMALSOUND_BUTTON, MUSIC_BUTTON, BACK_BUTTON]:
+    for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, ANIMALSOUND_BUTTON, BACK_BUTTON]:
         button.change_color(DRAW_MOUSE_POS)
         button.update(screen)
         
@@ -133,7 +131,13 @@ def draw_game():
     size = 10
     draw_buttons()
     drawing = False
-    volume = None
+    sound_path = random.choice(os.listdir("Assets/Sounds"))
+    str_sound = str(sound_path)
+    cut_sound = str_sound.split('.')
+    correct_animal = cut_sound[0].lower()
+    pygame.mixer.music.stop
+    pygame.mixer.music.load("Assets/Sounds/" + sound_path)
+    pygame.mixer.music.play(loops=0)
      
     while True: 
         for event in pygame.event.get():
@@ -191,22 +195,23 @@ def draw_game():
                     
                 elif BACK_BUTTON.check_for_input(event.pos):
                     main_menu()
+                    
+                elif ANIMALSOUND_BUTTON.check_for_input(event.pos):
+                    pygame.mixer.music.play(loops=0)
                 
-                elif MUSIC_BUTTON.check_for_input(event.pos):
-                    if volume == True or volume == None:
-                        pygame.mixer.music.set_volume(0.0)
-                        volume = False
-                    elif volume == False:
-                        pygame.mixer.music.set_volume(0.3)
-                        volume = True
                     
                 elif PREDICT_BUTTON.check_for_input(event.pos):
                     gray_image = process_image()
                     test = crop_image(gray_image)
-                    cv2.imwrite('image1.jpg', test)
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
-                    test = cv2.normalize(test, test, 0, 1, cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-                    cv2.imwrite('image2.jpg', test*255)
+                    cv2.imwrite('image0.jpg', test)
+                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                    cv2.imwrite('image1.jpg', test)
+                    # Define a kernel for morphological operations
+                    kernel = np.ones((1, 1), np.uint8)
+                    # Apply morphological operations to thin the edges
+                    test = cv2.erode(test, kernel, iterations=10)
+                    test = test/255.0
                     test = np.expand_dims(test, axis=0)
                     with open('encoder.pickle','rb') as f:
                         encode=pickle.load(f)
@@ -214,13 +219,27 @@ def draw_game():
                     max_index = np.argmax(prediction)
                     one_hot_encoded = np.zeros_like(prediction)
                     one_hot_encoded[0][max_index] = 1
+                    #print(prediction)
+                    #print(one_hot_encoded)
+                    predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
+                    #print(f"prediction is {predicted_variables}")
+                    #print(predicted_variables)
+                    #print(correct_animal)
                     max_value = round((prediction.max() * 100), 1)
-                    predict_text = get_font(25).render(f"Prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}", True, "Black", "White") 
-                    predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
-                    screen.blit(predict_text, predict_rect)
-                    points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
-                    points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
-                    screen.blit(points_text, points_rect)
+                    if predicted_variables == correct_animal:
+                        predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
+                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                        screen.blit(predict_text, predict_rect)
+                        points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
+                        points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                        screen.blit(points_text, points_rect)
+                    elif predicted_variables != correct_animal:
+                        fail_text = get_font(25).render(f"You were supposed to draw {correct_animal}, Try again!", True, "Black", "White")
+                        fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                        screen.blit(fail_text, fail_rect)
+                        predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
+                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                        screen.blit(predict_text, predict_rect)
                     pygame.display.update()              
                     
                     
@@ -290,31 +309,31 @@ def draw_gameIR():
                     else:
                         last_pos = (0,0)
 
-                    if RED_BUTTON.check_for_input(normalized_cX,normalized_cY):
+                    if RED_BUTTON.check_for_input(cX,cY):
                         color = 'Red'
                         size = 10
                 
-                    elif GREEN_BUTTON.check_for_input(normalized_cX,normalized_cY):
+                    elif GREEN_BUTTON.check_for_input(cX,cY):
                         color = 'Green'
                         size = 10
                         
-                    elif BLUE_BUTTON.check_for_input(normalized_cX,normalized_cY):
+                    elif BLUE_BUTTON.check_for_input(cX,cY):
                         color = 'Blue'
                         size = 10
                     
-                    elif BLACK_BUTTON.check_for_input(normalized_cX,normalized_cY):
+                    elif BLACK_BUTTON.check_for_input(cX,cY):
                         color = 'Black'
                         size = 10
                         
-                    elif ERASER_BUTTON.check_for_input(normalized_cX,normalized_cY):
+                    elif ERASER_BUTTON.check_for_input(cX,cY):
                         color = 'White'
                         size = 40
 
-                    elif CLEAR_BUTTON.check_for_input(normalized_cX,normalized_cY):
+                    elif CLEAR_BUTTON.check_for_input(cX,cY):
                         screen.fill('White')
                         draw_buttons()
                         
-                    elif PREDICT_BUTTON.check_for_input(normalized_cX,normalized_cY):
+                    elif PREDICT_BUTTON.check_for_input(cX,cY):
                         gray_image = process_image()
                         test = crop_image(gray_image)
                         cv2.imwrite('image1.jpg', test)
