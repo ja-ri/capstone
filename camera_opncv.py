@@ -34,6 +34,7 @@ class image_thread(QThread):
 
     def stop(self):
         self.not_stoped = True
+        self.wait()
 
     def caliberate_on(self):
         self.caliberate_flag = True
@@ -79,8 +80,8 @@ class image_thread(QThread):
 
     def main_camcv(self):
 
-
-        cap = cv2.VideoCapture(0)  # Open the selected camera
+        print(self.camera_index)
+        cap = cv2.VideoCapture(f"/dev/{self.camera_index}")  # Open the selected camera
         
         if not cap.isOpened():
             self.emit_message("Error: Failed to open camera.")
