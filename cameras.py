@@ -5,6 +5,10 @@ def get_available_cameras():
     for device_name in os.listdir('/dev'):
         if device_name.startswith('video'):
             camera_devices.append(device_name)
+<<<<<<< HEAD
+=======
+    print(camera_devices)
+>>>>>>> janne1
     return camera_devices
 
 if __name__ == "__main__":

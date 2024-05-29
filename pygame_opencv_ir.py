@@ -1,37 +1,24 @@
 import pygame
 from time import sleep
-import sys
-import pygame_menu
-from pygame_menu import themes
 from PIL import Image, ImageOps
 import numpy as np
-import cv2
-import matplotlib.pyplot as plt
-import glob, os
+import glob
+import os
 import random
 from keras.utils import to_categorical
 from keras.models import load_model
 from sklearn.preprocessing import OneHotEncoder
 import pickle
-# from win32api import GetSystemMetrics
 import pyautogui
 import cv2
-import numpy as np
 from PySide6.QtCore import QThread, Signal
-import pygame
 from PySide6.QtUiTools import QUiLoader
 from PySide6 import QtWidgets
 import sys
-import pickle
-from sklearn.preprocessing import OneHotEncoder
 import gc
 import tensorflow as tf
 from tensorflow.keras.utils import Sequence
 from tensorflow.keras import layers, models
-from keras.utils import to_categorical
-from keras.models import load_model
-import pickle
-import os 
 from screeninfo import get_monitors
           
 class PyGameIR_thread(QThread):  
@@ -42,6 +29,23 @@ class PyGameIR_thread(QThread):
         self.stop_pygame = False
         self.pygame_end = False
         self.select_mode = ""
+        self.width = 0
+        self.height = 0
+        self.channel = 3
+        self.not_stoped = False
+        self.caliberate_flag = False
+        self.output_caliberated_image = False
+        self.camera = 0
+        self.thresh = 0
+        self.value_tplx = 0
+        self.value_tply = 0
+        self.value_tprx = 0
+        self.value_tpry = 0
+        self.value_btlx = 0
+        self.value_btly = 0
+        self.value_btrx = 0
+        self.value_btry = 0
+        self.thesh_value = 0
         
     def select_mode_func(self,mode):
         self.select_mode = mode
@@ -170,6 +174,24 @@ class PyGameIR_thread(QThread):
             # Final crop
             output = image[square_y:square_y+square_size, square_x:square_x+square_size]
             return output
+
+    def get_data(self):
+        with open('caliberation_data.txt', 'r') as file:
+            lines = file.readlines()
+            if len(lines) >= 10:  # Ensure there are enough lines
+                self.camera = int(lines[0].strip())
+                self.thresh = int(lines[1].strip(','))
+                self.value_tplx = int(lines[2].strip(','))
+                self.value_tply = int(lines[3].strip())
+                self.value_tprx = int(lines[4].strip())
+                self.value_tpry = int(lines[5].strip())
+                self.value_btlx = int(lines[6].strip())
+                self.value_btly = int(lines[7].strip())
+                self.value_btrx = int(lines[8].strip())
+                self.value_btry = int(lines[9].strip())
+                print("Caliberation values loaded successfully")
+            else:
+                print("Insufficient data in the file")
         
 
     def draw_game(self):
@@ -181,9 +203,14 @@ class PyGameIR_thread(QThread):
         self.draw_buttons()
         drawing = False
         last_pos = (0,0)
+        cap = cv2.VideoCapture(f"/dev/{self.camera_index}")  # Open the selected camera
+        if not cap.isOpened():
+            self.emit_message("Error: Failed to open camera.")
+            return
         
+
         while not self.stop_pygame: 
-            
+
             # print(self.screen_height)
             # print(self.screen_width)
             # # Convert frame to grayscale
