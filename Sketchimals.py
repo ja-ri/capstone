@@ -48,7 +48,7 @@ class Button():
 			self.text = self.font.render(self.text_input, True, self.base_color)
  
 def draw_buttons():
-    global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON, BACK_BUTTON, ANIMALSOUND_BUTTON
+    global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON, BACK_BUTTON, ANIMALSOUND_BUTTON, NEXT_BUTTON
     DRAW_MOUSE_POS = pygame.mouse.get_pos()
     PREDICT_BUTTON = Button(image=None, pos=(50, 300), 
                         text_input="PREDICT", font=get_font(25), base_color="Black", hovering_color="White")
@@ -66,9 +66,11 @@ def draw_buttons():
                         text_input="CLEAR", font=get_font(25), base_color="Black", hovering_color="White")
     ANIMALSOUND_BUTTON = Button(image=None, pos=(50, 50),
                         text_input="SOUND", font=get_font(25), base_color="Black", hovering_color="White")
+    NEXT_BUTTON = Button(image=None, pos=(50, 100),
+                        text_input="NEW ANIMAL", font=get_font(20), base_color="Black", hovering_color="White")
     BACK_BUTTON = Button(image=None, pos=(50, screen_height-50),
                         text_input="MENU", font=get_font(25), base_color="Black", hovering_color="White")
-    for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, ANIMALSOUND_BUTTON, BACK_BUTTON]:
+    for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, ANIMALSOUND_BUTTON, BACK_BUTTON, NEXT_BUTTON]:
         button.change_color(DRAW_MOUSE_POS)
         button.update(screen)
         
@@ -129,7 +131,7 @@ def draw_game():
     screen.fill((background_color))
     color = 'Black'
     size = 10
-    draw_buttons()
+    #draw_buttons()
     drawing = False
     sound_path = random.choice(os.listdir("Assets/Sounds"))
     str_sound = str(sound_path)
@@ -140,6 +142,7 @@ def draw_game():
     pygame.mixer.music.play(loops=0)
      
     while True: 
+        draw_buttons()
         for event in pygame.event.get():
             (a, s) = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
@@ -199,7 +202,9 @@ def draw_game():
                 elif ANIMALSOUND_BUTTON.check_for_input(event.pos):
                     pygame.mixer.music.play(loops=0)
                 
-                    
+                elif NEXT_BUTTON.check_for_input(event.pos):
+                    draw_game()
+                
                 elif PREDICT_BUTTON.check_for_input(event.pos):
                     gray_image = process_image()
                     test = crop_image(gray_image)
@@ -412,6 +417,9 @@ def options():
         pygame.display.update()
 
 def main_menu():
+    pygame.mixer.music.load("Assets/music.mp3")
+    pygame.mixer.music.play(loops=-1)
+    pygame.mixer.music.set_volume(0.3)
     while True:
         screen.blit(BG1, (0,0))
 
