@@ -165,7 +165,7 @@ class capstone():
     def run_thread(self):
         current_camera_index = self.window.comboBox.currentIndex()
         camera_name = self.window.comboBox.itemText(current_camera_index)
-        self.opencv_thread.camera_index = camera_name
+        self.opencv_thread.camera_index = int(camera_name.strip("camera"))
         self.opencv_thread.height = self.graphic_height
         self.opencv_thread.width = self.graphic_width
         self.update_output_terminal("Video Broadcasting")

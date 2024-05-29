@@ -78,9 +78,7 @@ class image_thread(QThread):
 
 
     def main_camcv(self):
-
-
-        cap = cv2.VideoCapture(0)  # Open the selected camera
+        cap = cv2.VideoCapture(self.camera_index)  # Open the selected camera
         
         if not cap.isOpened():
             self.emit_message("Error: Failed to open camera.")

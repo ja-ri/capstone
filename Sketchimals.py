@@ -1,5 +1,4 @@
 import pygame
-from time import sleep
 import sys
 import numpy as np
 from PIL import Image, ImageOps
@@ -127,16 +126,18 @@ def crop_image(image):
         output = image[square_y:square_y+square_size, square_x:square_x+square_size]
         return output
     
+def sound_to_str(sound):        #takes the name of the sound file and converts it to a string
+    str_sound = str(sound)
+    cut_sound = str_sound.split('.')
+    correct_animal = cut_sound[0].lower()
+    return correct_animal
 
 def draw_game():
     screen.fill((background_color))
     color = 'Black'
     size = 10
     drawing = False
-    sound_path = random.choice(os.listdir("Assets/Sounds"))
-    str_sound = str(sound_path)
-    cut_sound = str_sound.split('.')
-    correct_animal = cut_sound[0].lower()
+    sound_path = random.choice(os.listdir("Assets/Sounds"))   
     pygame.mixer.music.stop
     pygame.mixer.music.load("Assets/Sounds/" + sound_path)
     pygame.mixer.music.play(loops=0)
@@ -226,15 +227,15 @@ def draw_game():
                     one_hot_encoded[0][max_index] = 1
                     predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
                     max_value = round((prediction.max() * 100), 1)
-                    if predicted_variables == correct_animal:
+                    if predicted_variables == sound_to_str(sound_path):
                         predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
                         predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
                         screen.blit(predict_text, predict_rect)
                         points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
                         points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
                         screen.blit(points_text, points_rect)
-                    elif predicted_variables != correct_animal:
-                        fail_text = get_font(25).render(f"You were supposed to draw {correct_animal}, Try again!", True, "Black", "White")
+                    elif predicted_variables != sound_to_str(sound_path):
+                        fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
                         fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
                         screen.blit(fail_text, fail_rect)
                         predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
@@ -265,9 +266,6 @@ def draw_gameIR():
         color = 'Black'
         size = 10
         sound_path = random.choice(os.listdir("Assets/Sounds"))
-        str_sound = str(sound_path)
-        cut_sound = str_sound.split('.')
-        correct_animal = cut_sound[0].lower()
         pygame.mixer.music.stop
         pygame.mixer.music.load("Assets/Sounds/" + sound_path)
         pygame.mixer.music.play(loops=0)
@@ -287,17 +285,7 @@ def draw_gameIR():
                     cY = int(M["m01"] / M["m00"])
                     normalized_cX = cX
                     normalized_cY = cY
-                    # print(f"image width height {self.image.shape[0],self.image.shape[1]}")
-                    # print(f"screen width and height {self.screen_width ,self.screen_height}")
-                    # print(f"cx and cy {cX,cY}")
-                    # print(f"Normalized cx and cy {normalized_cX,normalized_cY}")
                     end_pos =(normalized_cX,normalized_cY)
-                    # pygame.draw.circle(self.screen, color, (normalized_cX, normalized_cY),size)
-
-                    #exclude_x = ((predict_rect.x ),(predict_rect.x + eraser_rect.width))
-                    #exclude_y = ((predict_rect.y ),(predict_rect.y + clear_rect.y + clear_rect.height))
-                    # print(f"exclude_x[0] {exclude_x[0]}exclude_x[1] {exclude_x[1]}exclude_y[0] {exclude_y[0]}exclude_y[1] {exclude_y[1]}")
-
                     if ((normalized_cX >= screen_width/10)):
 
                         if ( (last_pos[0] != 0) and (last_pos[1] != 0) ):
@@ -369,15 +357,15 @@ def draw_gameIR():
                         one_hot_encoded[0][max_index] = 1
                         predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
                         max_value = round((prediction.max() * 100), 1)
-                        if predicted_variables == correct_animal:
+                        if predicted_variables == sound_to_str(sound_path):
                             predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
                             predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
                             screen.blit(predict_text, predict_rect)
                             points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
                             points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
                             screen.blit(points_text, points_rect)
-                        elif predicted_variables != correct_animal:
-                            fail_text = get_font(25).render(f"You were supposed to draw {correct_animal}, Try again!", True, "Black", "White")
+                        elif predicted_variables != sound_to_str(sound_path):
+                            fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
                             fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
                             screen.blit(fail_text, fail_rect)
                             predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
@@ -403,7 +391,7 @@ def options():
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
         
-        screen.blit(BG1, (0, 0))
+        screen.blit(BG, (0, 0))
 
         OPTIONS_TEXT = get_font(menu_font).render("Input:", True, "Black")
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width/2, screen_height/10))
@@ -445,16 +433,14 @@ def options():
         pygame.display.update()
 
 def main_menu():
-    pygame.mixer.music.load("Assets/music.mp3")
-    pygame.mixer.music.play(loops=-1)
-    pygame.mixer.music.set_volume(0.3)
+    music()
     while True:
-        screen.blit(BG1, (0,0))
+        screen.blit(BG, (0,0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
-        logo_rect = logo1.get_rect()
+        logo_rect = logo.get_rect()
         logo_rect.center = (screen_width / 2, screen_height /6)
-        screen.blit(logo1, logo_rect.topleft)
+        screen.blit(logo, logo_rect.topleft)
 
         PLAY_BUTTON = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15), 
                             text_input="PLAY", font=get_font(menu_font), base_color="#000000", hovering_color="White")
@@ -478,31 +464,29 @@ def main_menu():
 
         pygame.display.update()
 
+def music(): #music player
+    pygame.mixer.music.load("Assets/music.mp3")
+    pygame.mixer.music.play(loops=-1)
+    pygame.mixer.music.set_volume(0.3)
+
 pygame.init()
 clock = pygame.time.Clock()
-screen_width = get_monitors()[0].width
+screen_width = get_monitors()[0].width      #screenwidth and heigth from system
 screen_height = get_monitors()[0].height
-font_size = int(screen_height/40)
-menu_font = int(screen_height/10)
+font_size = int(screen_height/40)           #scale buttons font for different screen sizes
+menu_font = int(screen_height/10)           #scale menu font foor different screen sizes
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Capstone Project')
+pygame.display.set_caption('Sketchimals')
 background_color = pygame.Color('White')
 model = load_model("12_classes.h5")
-BG = pygame.image.load("Assets/background1.png")
-logo = pygame.image.load("Assets/logo.png")
-logo_size = (screen_width/2, screen_width/2 * logo.get_height() / logo.get_width())
-logo1 = pygame.transform.scale(logo, (logo_size))
-BG1 = pygame.transform.scale(BG, (screen_width, screen_height))
-#code for the background music
+load_logo = pygame.image.load("Assets/logo.png")
+logo = pygame.transform.scale(load_logo, (screen_width/2, screen_width/2 * load_logo.get_height() / load_logo.get_width()))
+BG = pygame.transform.scale(pygame.image.load("Assets/background1.png"), (screen_width, screen_height))
 pygame.mixer.init()
-pygame.mixer.music.load("Assets/music.mp3")
-pygame.mixer.music.play(loops=-1)
-pygame.mixer.music.set_volume(0.3)
 
+# rectangles for "AI"s guess and points
 predict_rect = pygame.Rect(screen_width/2 -100, screen_height - 100, 400, 50)
 points_rect = pygame.Rect(screen_width/2 - 100, screen_height - 50, 400, 50)
-
-game_state = "start_menu"
 
 while True:
     clock.tick(60)
@@ -510,12 +494,7 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
-    if game_state == "start_menu":
-        main_menu()
-    if game_state == "draw_game":
-        draw_game()
-        
+    main_menu()      
     pygame.display.flip()
 
 
