@@ -12,6 +12,7 @@ from sklearn.preprocessing import OneHotEncoder
 import pickle
 from screeninfo import get_monitors
 from main import capstone
+from camera_opncv import image_thread
 
 
 def get_font(size): 
@@ -50,26 +51,26 @@ class Button():
 def draw_buttons():
     global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON, BACK_BUTTON, ANIMALSOUND_BUTTON, NEXT_BUTTON
     DRAW_MOUSE_POS = pygame.mouse.get_pos()
-    PREDICT_BUTTON = Button(image=None, pos=(50, 300), 
-                        text_input="PREDICT", font=get_font(25), base_color="Black", hovering_color="White")
-    ERASER_BUTTON = Button(image=None, pos=(50, 350), 
-                        text_input="ERASER", font=get_font(25), base_color="Black", hovering_color="White")
-    BLACK_BUTTON = Button(image=None, pos=(50, 400), 
-                        text_input="BLACK", font=get_font(25), base_color="Black", hovering_color="White")
-    RED_BUTTON = Button(image=None, pos=(50, 450), 
-                        text_input="RED", font=get_font(25), base_color="Red", hovering_color="White")
-    GREEN_BUTTON = Button(image=None, pos=(50, 500), 
-                        text_input="GREEN", font=get_font(25), base_color="Green", hovering_color="White")
-    BLUE_BUTTON = Button(image=None, pos=(50, 550), 
-                        text_input="BLUE", font=get_font(25), base_color="Blue", hovering_color="White")
-    CLEAR_BUTTON = Button(image=None, pos=(50, 600), 
-                        text_input="CLEAR", font=get_font(25), base_color="Black", hovering_color="White")
-    ANIMALSOUND_BUTTON = Button(image=None, pos=(50, 50),
-                        text_input="SOUND", font=get_font(25), base_color="Black", hovering_color="White")
-    NEXT_BUTTON = Button(image=None, pos=(50, 100),
-                        text_input="NEW ANIMAL", font=get_font(20), base_color="Black", hovering_color="White")
-    BACK_BUTTON = Button(image=None, pos=(50, screen_height-50),
-                        text_input="MENU", font=get_font(25), base_color="Black", hovering_color="White")
+    PREDICT_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 - screen_height/30 * 3), 
+                        text_input="PREDICT", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
+    ERASER_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 - screen_height/30 * 2), 
+                        text_input="ERASER", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
+    BLACK_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 - screen_height/30), 
+                        text_input="BLACK", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
+    RED_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2), 
+                        text_input="RED", font=get_font(font_size), base_color="Red", hovering_color="#D9DDDC")
+    GREEN_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30), 
+                        text_input="GREEN", font=get_font(font_size), base_color="Green", hovering_color="#D9DDDC")
+    BLUE_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30 *2), 
+                        text_input="BLUE", font=get_font(font_size), base_color="Blue", hovering_color="#D9DDDC")
+    CLEAR_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30 *3), 
+                        text_input="CLEAR", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
+    ANIMALSOUND_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/20),
+                        text_input="SOUND", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
+    NEXT_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/20 + screen_height/30),
+                        text_input="NEXT", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
+    BACK_BUTTON = Button(image=None, pos=(screen_width/20, screen_height - screen_height/20),
+                        text_input="MENU", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
     for button in [PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, RED_BUTTON, GREEN_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, ANIMALSOUND_BUTTON, BACK_BUTTON, NEXT_BUTTON]:
         button.change_color(DRAW_MOUSE_POS)
         button.update(screen)
@@ -77,7 +78,7 @@ def draw_buttons():
     
 def process_image():
     #processing image to desired format
-    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
+    subrect = pygame.Rect(screen_width/10, 0, screen_width - screen_width/10, screen_height)
     sub = screen.subsurface(subrect)
     pygame.image.save(sub, 'image1.png')
     image = Image.open("image1.png")
@@ -131,7 +132,6 @@ def draw_game():
     screen.fill((background_color))
     color = 'Black'
     size = 10
-    #draw_buttons()
     drawing = False
     sound_path = random.choice(os.listdir("Assets/Sounds"))
     str_sound = str(sound_path)
@@ -148,7 +148,7 @@ def draw_game():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and a>=100:
+            elif event.type == pygame.MOUSEBUTTONDOWN and a>=screen_width/10:
                 if event.button == 1:  # Left mouse button
                     drawing = True
                     last_pos = pygame.mouse.get_pos()  # Get the starting position
@@ -224,12 +224,7 @@ def draw_game():
                     max_index = np.argmax(prediction)
                     one_hot_encoded = np.zeros_like(prediction)
                     one_hot_encoded[0][max_index] = 1
-                    #print(prediction)
-                    #print(one_hot_encoded)
                     predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
-                    #print(f"prediction is {predicted_variables}")
-                    #print(predicted_variables)
-                    #print(correct_animal)
                     max_value = round((prediction.max() * 100), 1)
                     if predicted_variables == correct_animal:
                         predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
@@ -261,19 +256,25 @@ def draw_game():
                     draw_buttons()
         pygame.display.update()
 
+def IR_image(Image):
+    IR_image = Image
+    return IR_image
+
 def draw_gameIR():
-        subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
-        sub = screen.subsurface(subrect)
         screen.fill((background_color))
         color = 'Black'
         size = 10
-        draw_buttons()
-        drawing = False
+        sound_path = random.choice(os.listdir("Assets/Sounds"))
+        str_sound = str(sound_path)
+        cut_sound = str_sound.split('.')
+        correct_animal = cut_sound[0].lower()
+        pygame.mixer.music.stop
+        pygame.mixer.music.load("Assets/Sounds/" + sound_path)
+        pygame.mixer.music.play(loops=0)
         last_pos = (0,0)
-        (a, s) = pygame.mouse.get_pos()
         
         while True: 
-            
+            draw_buttons()
             # Find contours
             contours, _ = cv2.findContours(Image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
@@ -297,7 +298,7 @@ def draw_gameIR():
                     #exclude_y = ((predict_rect.y ),(predict_rect.y + clear_rect.y + clear_rect.height))
                     # print(f"exclude_x[0] {exclude_x[0]}exclude_x[1] {exclude_x[1]}exclude_y[0] {exclude_y[0]}exclude_y[1] {exclude_y[1]}")
 
-                    if ((normalized_cX >= 100)):
+                    if ((normalized_cX >= screen_width/10)):
 
                         if ( (last_pos[0] != 0) and (last_pos[1] != 0) ):
                             dx = end_pos[0] - last_pos[0]
@@ -338,13 +339,27 @@ def draw_gameIR():
                         screen.fill('White')
                         draw_buttons()
                         
+                    elif BACK_BUTTON.check_for_input(cX,cY):
+                        main_menu()
+                        
+                    elif ANIMALSOUND_BUTTON.check_for_input(cX,cY):
+                        pygame.mixer.music.play(loops=0)
+                    
+                    elif NEXT_BUTTON.check_for_input(cX,cY):
+                        draw_game()
+                        
                     elif PREDICT_BUTTON.check_for_input(cX,cY):
                         gray_image = process_image()
                         test = crop_image(gray_image)
-                        cv2.imwrite('image1.jpg', test)
                         test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
-                        test = cv2.normalize(test, test, 0, 1, cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-                        cv2.imwrite('image2.jpg', test*255)
+                        cv2.imwrite('image0.jpg', test)
+                        _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                        cv2.imwrite('image1.jpg', test)
+                        # Define a kernel for morphological operations
+                        kernel = np.ones((1, 1), np.uint8)
+                        # Apply morphological operations to thin the edges
+                        test = cv2.erode(test, kernel, iterations=10)
+                        test = test/255.0
                         test = np.expand_dims(test, axis=0)
                         with open('encoder.pickle','rb') as f:
                             encode=pickle.load(f)
@@ -352,15 +367,23 @@ def draw_gameIR():
                         max_index = np.argmax(prediction)
                         one_hot_encoded = np.zeros_like(prediction)
                         one_hot_encoded[0][max_index] = 1
-                        print(prediction)
-                        print(one_hot_encoded)
-                        print(f"prediction is {encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]}")
                         predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
-                        print(f"prediction is {predicted_variables}")
-                        font = pygame.font.Font(None, 60)
-                        text_surface = font.render(f"Prediction: {predicted_variables}", True, (0, 0, 0))
-                        # text_rect = text_surface.get_rect(center=(self.screen_width // 2, self.screen_height - 20))
-                        screen.blit(text_surface,(10,10))    
+                        max_value = round((prediction.max() * 100), 1)
+                        if predicted_variables == correct_animal:
+                            predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
+                            predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                            screen.blit(predict_text, predict_rect)
+                            points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
+                            points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                            screen.blit(points_text, points_rect)
+                        elif predicted_variables != correct_animal:
+                            fail_text = get_font(25).render(f"You were supposed to draw {correct_animal}, Try again!", True, "Black", "White")
+                            fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                            screen.blit(fail_text, fail_rect)
+                            predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
+                            predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                            screen.blit(predict_text, predict_rect)
+                        pygame.display.update()     
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -382,18 +405,18 @@ def options():
         
         screen.blit(BG1, (0, 0))
 
-        OPTIONS_TEXT = get_font(75).render("Options", True, "Black")
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width/2, 100))
+        OPTIONS_TEXT = get_font(menu_font).render("Input:", True, "Black")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width/2, screen_height/10))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
-        OPTIONS_MOUSE = Button(image=None, pos=(screen_width/2, 315), 
-                            text_input="MOUSE", font=get_font(100), base_color="Black", hovering_color="White")
-        OPTIONS_TOUCHSCREEN = Button(image=None, pos=(screen_width/2, 465), 
-                            text_input="TOUCHSCREEN", font=get_font(100), base_color="Black", hovering_color="White")
-        OPTIONS_IRPEN = Button(image=None, pos=(screen_width/2, 615), 
-                            text_input="IR PEN", font=get_font(100), base_color="Black", hovering_color="White")
-        OPTIONS_BACK = Button(image=None, pos=(screen_width/2, 765), 
-                            text_input="BACK", font=get_font(100), base_color="Black", hovering_color="White")
+        OPTIONS_MOUSE = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15 *3), 
+                            text_input="MOUSE", font=get_font(menu_font), base_color="Black", hovering_color="White")
+        OPTIONS_TOUCHSCREEN = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15), 
+                            text_input="TOUCHSCREEN", font=get_font(menu_font), base_color="Black", hovering_color="White")
+        OPTIONS_IRPEN = Button(image=None, pos=(screen_width/2, screen_height/2 + screen_height/15), 
+                            text_input="IR PEN", font=get_font(menu_font), base_color="Black", hovering_color="White")
+        OPTIONS_BACK = Button(image=None, pos=(screen_width/2, screen_height/2 + screen_height/15 *3), 
+                            text_input="BACK", font=get_font(menu_font), base_color="Black", hovering_color="White")
 
         for button in [OPTIONS_MOUSE, OPTIONS_TOUCHSCREEN, OPTIONS_IRPEN, OPTIONS_BACK]:
             button.change_color(OPTIONS_MOUSE_POS)
@@ -410,7 +433,12 @@ def options():
                     start_capston = capstone()
                     start_capston.window.show()
                     start_capston.app.exec()
-                    draw_game()
+                    
+                    opencv_thread = image_thread()
+                    IR_image = opencv_thread.original_image_update.connect(IR_image)
+                    opencv_thread.start()
+                    
+                    draw_gameIR()
                 if OPTIONS_BACK.check_for_input(OPTIONS_MOUSE_POS):
                     main_menu()
 
@@ -424,18 +452,14 @@ def main_menu():
         screen.blit(BG1, (0,0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
-        #logo_rect = logo1.get_rect()
-        #logo_rect.center = (screen_width / 2, screen_height /6)
-        #screen.blit(logo1, logo_rect.topleft)
-        MENU_TEXT = get_font(150).render("SKETCHIMALS", True, "#b68f40")
-        MENU_RECT = MENU_TEXT.get_rect(center=(screen_width/2, 120))
+        logo_rect = logo1.get_rect()
+        logo_rect.center = (screen_width / 2, screen_height /6)
+        screen.blit(logo1, logo_rect.topleft)
 
-        PLAY_BUTTON = Button(image=None, pos=(screen_width/2, 390), 
-                            text_input="PLAY", font=get_font(100), base_color="#000000", hovering_color="White")
-        QUIT_BUTTON = Button(image=None, pos=(screen_width/2, 540), 
-                            text_input="QUIT", font=get_font(100), base_color="#000000", hovering_color="White")
-
-        screen.blit(MENU_TEXT, MENU_RECT)
+        PLAY_BUTTON = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15), 
+                            text_input="PLAY", font=get_font(menu_font), base_color="#000000", hovering_color="White")
+        QUIT_BUTTON = Button(image=None, pos=(screen_width/2, screen_height/2 + screen_height/15), 
+                            text_input="QUIT", font=get_font(menu_font), base_color="#000000", hovering_color="White")
 
         for button in [PLAY_BUTTON, QUIT_BUTTON]:
             button.change_color(MENU_MOUSE_POS)
@@ -458,13 +482,15 @@ pygame.init()
 clock = pygame.time.Clock()
 screen_width = get_monitors()[0].width
 screen_height = get_monitors()[0].height
+font_size = int(screen_height/40)
+menu_font = int(screen_height/10)
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Capstone Project')
 background_color = pygame.Color('White')
 model = load_model("12_classes.h5")
 BG = pygame.image.load("Assets/background1.png")
 logo = pygame.image.load("Assets/logo.png")
-logo_size = (screen_width/2160, screen_height/1440)
+logo_size = (screen_width/2, screen_width/2 * logo.get_height() / logo.get_width())
 logo1 = pygame.transform.scale(logo, (logo_size))
 BG1 = pygame.transform.scale(BG, (screen_width, screen_height))
 #code for the background music
