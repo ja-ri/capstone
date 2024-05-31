@@ -1,14 +1,21 @@
 import os
+import cv2
 
-def get_available_cameras():
+def get_available_cameras(max_cameras=2):
     camera_devices = []
-    for device_name in os.listdir('/dev'):
-        if device_name.startswith('video'):
-            camera_devices.append(device_name)
-<<<<<<< HEAD
-=======
-    print(camera_devices)
->>>>>>> janne1
+    for index in range(max_cameras):
+        cap = cv2.VideoCapture(index)
+        if cap is None or not cap.isOpened():
+            print(f"Camera at index {index} is not available.")
+        else:
+            ret, frame = cap.read()
+            if ret:
+                camera = "video" + str(index)
+                camera_devices.append(camera)
+                print(f"Camera at index {index} is available.")
+            cap.release()
+    
+
     return camera_devices
 
 if __name__ == "__main__":
