@@ -244,7 +244,7 @@ def get_data_IR():
         lines = file.readlines()
         print(lines)
         if len(lines) >= 10:  # Ensure there are enough lines
-            camera = (lines[0].strip())
+            camera = (int(lines[0].strip("video")))
             thresh = int(lines[1].strip())
             value_tplx = int(lines[2].strip())
             value_tply = int(lines[3].strip())
@@ -259,6 +259,7 @@ def get_data_IR():
         else:
             print("Insufficient data in the file")
             return 0
+
 def draw_gameIR():
 
     screen.fill((background_color))
@@ -276,7 +277,8 @@ def draw_gameIR():
     last_pos = (0,0)
 
     caliberation_data = get_data_IR()
-    cap = cv2.VideoCapture(f"/dev/{caliberation_data[0]}")  # Open the selected camera
+    print(caliberation_data)
+    cap = cv2.VideoCapture(caliberation_data[0])  # Open the selected camera
     
     if not cap.isOpened():
         print()("Error: Failed to open camera.")
@@ -328,9 +330,7 @@ def draw_gameIR():
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                normalized_cX = cX
-                normalized_cY = cY
-                end_pos = (normalized_cX, normalized_cY)
+                end_pos = (cX, cY)
 
                 if RED_BUTTON.check_for_input(end_pos):
                     color = 'Red'
