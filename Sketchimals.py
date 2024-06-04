@@ -1,4 +1,6 @@
+from traceback import print_tb
 import pygame
+from time import sleep
 import sys
 import numpy as np
 from PIL import Image, ImageOps
@@ -10,12 +12,13 @@ from keras.models import load_model
 from sklearn.preprocessing import OneHotEncoder
 import pickle
 from screeninfo import get_monitors
-from main import capstone
-from camera_opncv import image_thread
+from main import capstone,main_thread
+import threading
+
 
 
 def get_font(size): 
-    return pygame.font.Font("Assets/font.ttf", size)       
+    return pygame.font.Font("assets/font.ttf", size)       
             
 class Button():
 	def __init__(self, image, pos, text_input, font, base_color, hovering_color):
@@ -27,7 +30,7 @@ class Button():
 		self.text_input = text_input
 		self.text = self.font.render(self.text_input, True, self.base_color)
 		if self.image is None:
-		    self.image = self.text
+		    self.image = self.text 
 		self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
 		self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
 
@@ -60,9 +63,9 @@ def draw_buttons():
                         text_input="RED", font=get_font(font_size), base_color="Red", hovering_color="#D9DDDC")
     GREEN_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30), 
                         text_input="GREEN", font=get_font(font_size), base_color="Green", hovering_color="#D9DDDC")
-    BLUE_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30 *2), 
+    BLUE_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30 * 2), 
                         text_input="BLUE", font=get_font(font_size), base_color="Blue", hovering_color="#D9DDDC")
-    CLEAR_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30 *3), 
+    CLEAR_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 + screen_height/30 * 3), 
                         text_input="CLEAR", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
     ANIMALSOUND_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/20),
                         text_input="SOUND", font=get_font(font_size), base_color="Black", hovering_color="#D9DDDC")
@@ -77,7 +80,7 @@ def draw_buttons():
     
 def process_image():
     #processing image to desired format
-    subrect = pygame.Rect(screen_width/10, 0, screen_width - screen_width/10, screen_height)
+    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
     sub = screen.subsurface(subrect)
     pygame.image.save(sub, 'image1.png')
     image = Image.open("image1.png")
@@ -88,43 +91,23 @@ def process_image():
     return gray_image
     
 def crop_image(image):
-    #Calculate the bounding rectangle that contains every part of the image
     x, y, w, h = cv2.boundingRect(image)
-
-    #Determine the size of the bounding square
-    square_size = max(w, h)
-
-    #Determine the coordinates of the bounding square to center the drawing
-    square_x = x + (w - square_size) // 2
-    square_y = y + (h - square_size) // 2
-
-    #Check if the square exceeds the dimensions of the image
-    if square_x < 0 or square_y < 0 or square_x + square_size > image.shape[1] or square_y + square_size > image.shape[0]:
-        # Calculate the amount of extension needed on each side
-        left_extension = max(0 - square_x, 0)
-        top_extension = max(0 - square_y, 0)
-        right_extension = max(square_x + square_size - image.shape[1], 0)
-        bottom_extension = max(square_y + square_size - image.shape[0], 0)
-
-        # Extend the image beyond its boundaries
-        extended_image = cv2.copyMakeBorder(image, top_extension, bottom_extension, left_extension, right_extension, cv2.BORDER_CONSTANT, value=(0))
-
-        # Adjust the square coordinates due to extension
-        square_x += left_extension
-        square_y += top_extension
-
-        # The final square x,y,w,h
-        square = square_x, square_y, square_size, square_size
-        # Final crop
-        output = extended_image[square_y:square_y+square_size, square_x:square_x+square_size]
-        return output
-
-    else:
-        # The final square x,y,w,h
-        square = square_x, square_y, square_size, square_size
-        # Final crop
-        output = image[square_y:square_y+square_size, square_x:square_x+square_size]
-        return output
+    output = image[y:y+h,x:x+w]
+    top=int(round(h*0.1,0))
+    bottom=int(round(h*0.1,0))
+    left=int(round(y*0.2,0))
+    right=int(round(y*0.2,0))
+    print(top)
+    padded_image = cv2.copyMakeBorder(
+        output,
+        top=top,
+        bottom=bottom,
+        left=left,
+        right=right,
+        borderType=cv2.BORDER_CONSTANT,
+        value=0
+    )
+    return padded_image
     
 def sound_to_str(sound):        #takes the name of the sound file and converts it to a string
     str_sound = str(sound)
@@ -137,9 +120,9 @@ def draw_game():
     color = 'Black'
     size = 10
     drawing = False
-    sound_path = random.choice(os.listdir("Assets/Sounds"))   
+    sound_path = random.choice(os.listdir("assets/Sounds"))
     pygame.mixer.music.stop
-    pygame.mixer.music.load("Assets/Sounds/" + sound_path)
+    pygame.mixer.music.load("assets/Sounds/" + sound_path)
     pygame.mixer.music.play(loops=0)
      
     while True: 
@@ -149,7 +132,7 @@ def draw_game():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and a>=screen_width/10:
+            elif event.type == pygame.MOUSEBUTTONDOWN and a>=100:
                 if event.button == 1:  # Left mouse button
                     drawing = True
                     last_pos = pygame.mouse.get_pos()  # Get the starting position
@@ -202,10 +185,10 @@ def draw_game():
                     
                 elif ANIMALSOUND_BUTTON.check_for_input(event.pos):
                     pygame.mixer.music.play(loops=0)
-                
+
                 elif NEXT_BUTTON.check_for_input(event.pos):
                     draw_game()
-                
+                    
                 elif PREDICT_BUTTON.check_for_input(event.pos):
                     gray_image = process_image()
                     test = crop_image(gray_image)
@@ -257,136 +240,182 @@ def draw_game():
                     draw_buttons()
         pygame.display.update()
 
-def IR_image(Image):
-    IR_image = Image
-    return IR_image
+def get_data_IR():
+    with open('caliberation_data.txt', 'r') as file:
+        lines = file.readlines()
+        print(lines)
+        if len(lines) >= 10:  # Ensure there are enough lines
+            camera = (int(lines[0].strip("video")))
+            thresh = int(lines[1].strip())
+            value_tplx = int(lines[2].strip())
+            value_tply = int(lines[3].strip())
+            value_tprx = int(lines[4].strip())
+            value_tpry = int(lines[5].strip())
+            value_btlx = int(lines[6].strip())
+            value_btly = int(lines[7].strip())
+            value_btrx = int(lines[8].strip())
+            value_btry = int(lines[9].strip())
+            print("Caliberation values loaded successfully")
+            return (camera,thresh,value_tplx,value_tply,value_tprx,value_tpry,value_btlx,value_btly,value_btrx,value_btry)
+        else:
+            print("Insufficient data in the file")
+            return 0
 
 def draw_gameIR():
-        screen.fill((background_color))
-        color = 'Black'
-        size = 10
-        sound_path = random.choice(os.listdir("Assets/Sounds"))
-        pygame.mixer.music.stop
-        pygame.mixer.music.load("Assets/Sounds/" + sound_path)
-        pygame.mixer.music.play(loops=0)
-        last_pos = (0,0)
-        
-        while True: 
-            draw_buttons()
-            # Find contours
-            contours, _ = cv2.findContours(Image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
-            # Iterate through contours
-            for contour in contours:
-                # Compute centroid of contour
-                M = cv2.moments(contour)
-                if M["m00"] != 0:
-                    cX = int(M["m10"] / M["m00"])
-                    cY = int(M["m01"] / M["m00"])
-                    normalized_cX = cX
-                    normalized_cY = cY
-                    end_pos =(normalized_cX,normalized_cY)
-                    if ((normalized_cX >= screen_width/10)):
 
-                        if ( (last_pos[0] != 0) and (last_pos[1] != 0) ):
-                            dx = end_pos[0] - last_pos[0]
-                            dy = end_pos[1] - last_pos[1]
-                            distance = max(abs(dx), abs(dy))
-                            print(f"max_ditstance {distance}")
-                            if (distance < 100):
-                                for i in range(1, distance + 1):
-                                    x = last_pos[0] + int(float(i) / distance * dx)
-                                    y = last_pos[1] + int(float(i) / distance * dy)
-                                    pygame.draw.circle(screen, color, (x, y), size)
-                                last_pos = end_pos  # Update last position
-                        last_pos = end_pos
-                    else:
-                        last_pos = (0,0)
+    screen.fill((background_color))
+    color = 'Black'
+    size = 10
+    sound_path = random.choice(os.listdir("assets/Sounds"))
+    pygame.mixer.music.stop
+    pygame.mixer.music.load("assets/Sounds/" + sound_path)
+    pygame.mixer.music.play(loops=0)
+    last_pos = (0,0)
 
-                    if RED_BUTTON.check_for_input(cX,cY):
-                        color = 'Red'
-                        size = 10
-                
-                    elif GREEN_BUTTON.check_for_input(cX,cY):
-                        color = 'Green'
-                        size = 10
-                        
-                    elif BLUE_BUTTON.check_for_input(cX,cY):
-                        color = 'Blue'
-                        size = 10
-                    
-                    elif BLACK_BUTTON.check_for_input(cX,cY):
-                        color = 'Black'
-                        size = 10
-                        
-                    elif ERASER_BUTTON.check_for_input(cX,cY):
-                        color = 'White'
-                        size = 40
+    caliberation_data = get_data_IR()
+    print(caliberation_data)
+    cap = cv2.VideoCapture(caliberation_data[0])  # Open the selected camera
+    
+    if not cap.isOpened():
+        print("Error: Failed to open camera.")
+        return
 
-                    elif CLEAR_BUTTON.check_for_input(cX,cY):
-                        screen.fill('White')
-                        draw_buttons()
-                        
-                    elif BACK_BUTTON.check_for_input(cX,cY):
-                        main_menu()
-                        
-                    elif ANIMALSOUND_BUTTON.check_for_input(cX,cY):
-                        pygame.mixer.music.play(loops=0)
-                    
-                    elif NEXT_BUTTON.check_for_input(cX,cY):
-                        draw_game()
-                        
-                    elif PREDICT_BUTTON.check_for_input(cX,cY):
-                        gray_image = process_image()
-                        test = crop_image(gray_image)
-                        test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
-                        cv2.imwrite('image0.jpg', test)
-                        _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
-                        cv2.imwrite('image1.jpg', test)
-                        # Define a kernel for morphological operations
-                        kernel = np.ones((1, 1), np.uint8)
-                        # Apply morphological operations to thin the edges
-                        test = cv2.erode(test, kernel, iterations=10)
-                        test = test/255.0
-                        test = np.expand_dims(test, axis=0)
-                        with open('encoder.pickle','rb') as f:
-                            encode=pickle.load(f)
-                        prediction = model.predict(test)
-                        max_index = np.argmax(prediction)
-                        one_hot_encoded = np.zeros_like(prediction)
-                        one_hot_encoded[0][max_index] = 1
-                        predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
-                        max_value = round((prediction.max() * 100), 1)
-                        if predicted_variables == sound_to_str(sound_path):
-                            predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
-                            predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
-                            screen.blit(predict_text, predict_rect)
-                            points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
-                            points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
-                            screen.blit(points_text, points_rect)
-                        elif predicted_variables != sound_to_str(sound_path):
-                            fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
-                            fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
-                            screen.blit(fail_text, fail_rect)
-                            predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
-                            predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
-                            screen.blit(predict_text, predict_rect)
-                        pygame.display.update()     
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+    while True: 
+        draw_buttons()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        pygame.quit()
-                        sys.exit()
-                    elif event.key == pygame.K_c:
-                        screen.fill('White')
-                        draw_buttons()
-            
-            pygame.display.update()
+                elif event.key == pygame.K_c:
+                    screen.fill('White')
+                    draw_buttons()
 
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Failed to capture image from camera.")
+            break
+
+        height, width = frame.shape[:2]
+
+        # (camera,thresh,value_tplx,value_tply,value_tprx,value_tpry,value_btlx,value_btly,value_btrx,value_btry)
+        # Calculate the slice dimensions
+        start_x = min(caliberation_data[2], width)
+        start_y = min(caliberation_data[3], height)
+        end_x = min(caliberation_data[4], width)
+        end_y = min(caliberation_data[7], height)
+        
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
+        # Thresholding to isolate bright areas (IR light)
+        _, thresh = cv2.threshold(gray, caliberation_data[1], 255, cv2.THRESH_BINARY)
+
+        cropped_image = thresh[start_y:end_y, start_x:end_x]
+        cropped_image = cv2.resize(cropped_image,(get_monitors()[0].width ,get_monitors()[0].height))
+        
+        # Find contours
+        contours, _ = cv2.findContours(cropped_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        # Iterate through contours
+        for contour in contours:
+            # Compute centroid of contour
+            M = cv2.moments(contour)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                end_pos = (cX, cY)
+
+                if RED_BUTTON.check_for_input(end_pos):
+                    color = 'Red'
+                    size = 10
+               
+                elif GREEN_BUTTON.check_for_input(end_pos):
+                    color = 'Green'
+                    size = 10
+                    
+                elif BLUE_BUTTON.check_for_input(end_pos):
+                    color = 'Blue'
+                    size = 10
+                
+                elif BLACK_BUTTON.check_for_input(end_pos):
+                    color = 'Black'
+                    size = 10
+                    
+                elif ERASER_BUTTON.check_for_input(end_pos):
+                    color = 'White'
+                    size = 40
+
+                elif CLEAR_BUTTON.check_for_input(end_pos):
+                    screen.fill('White')
+                    draw_buttons()
+                    
+                elif BACK_BUTTON.check_for_input(end_pos):
+                    main_menu()
+                    
+                elif ANIMALSOUND_BUTTON.check_for_input(end_pos):
+                    pygame.mixer.music.play(loops=0)
+                    
+                elif NEXT_BUTTON.check_for_input(end_pos):
+                    draw_game()
+                    
+                elif PREDICT_BUTTON.check_for_input(end_pos):
+                    gray_image = process_image()
+                    test = crop_image(gray_image)
+                    test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
+                    cv2.imwrite('image0.jpg', test)
+                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                    cv2.imwrite('image1.jpg', test)
+                    # Define a kernel for morphological operations
+                    kernel = np.ones((1, 1), np.uint8)
+                    # Apply morphological operations to thin the edges
+                    test = cv2.erode(test, kernel, iterations=10)
+                    test = test/255.0
+                    test = np.expand_dims(test, axis=0)
+                    with open('encoder.pickle','rb') as f:
+                        encode=pickle.load(f)
+                    prediction = model.predict(test)
+                    max_index = np.argmax(prediction)
+                    one_hot_encoded = np.zeros_like(prediction)
+                    one_hot_encoded[0][max_index] = 1
+                    predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
+                    max_value = round((prediction.max() * 100), 1)
+                    if predicted_variables == sound_to_str(sound_path):
+                        predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
+                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                        screen.blit(predict_text, predict_rect)
+                        points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
+                        points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                        screen.blit(points_text, points_rect)
+                    elif predicted_variables != sound_to_str(sound_path):
+                        fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
+                        fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                        screen.blit(fail_text, fail_rect)
+                        predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
+                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                        screen.blit(predict_text, predict_rect)
+                        pygame.display.update()
+                else:
+                    
+                    if last_pos != (0, 0):
+                        dx = end_pos[0] - last_pos[0]
+                        dy = end_pos[1] - last_pos[1]
+                        distance = max(abs(dx), abs(dy))
+                        if distance < 50:
+                            for i in range(1, distance + 1):
+                                x = last_pos[0] + int(float(i) / distance * dx)
+                                y = last_pos[1] + int(float(i) / distance * dy)
+                                pygame.draw.circle(screen, color, (x, y), size)
+                            last_pos = end_pos  # Update last position
+                    last_pos = end_pos
+            else:
+                last_pos = (0, 0)
+
+        pygame.display.update()
+        pygame.time.wait(10)  # Add a small delay to avoid high CPU usage 
+     
 def options():
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
@@ -418,15 +447,14 @@ def options():
                 if OPTIONS_TOUCHSCREEN.check_for_input(OPTIONS_MOUSE_POS):
                     draw_game()
                 if OPTIONS_IRPEN.check_for_input(OPTIONS_MOUSE_POS):
-                    start_capston = capstone()
-                    start_capston.window.show()
-                    start_capston.app.exec()
-                    
-                    opencv_thread = image_thread()
-                    IR_image = opencv_thread.original_image_update.connect(IR_image)
-                    opencv_thread.start()
-                    
+                    pyqt_thread = threading.Thread(target=main_thread)
+                    # # pyqt_thread.start()
+                    # # main_thread()
+                    # pyqt_thread = threading.Thread(target=draw_gameIR)
+                    # pyqt_thread.start()
+                    # pyqt_thread.join() 
                     draw_gameIR()
+                    print("main done")
                 if OPTIONS_BACK.check_for_input(OPTIONS_MOUSE_POS):
                     main_menu()
 
@@ -446,6 +474,7 @@ def main_menu():
                             text_input="PLAY", font=get_font(menu_font), base_color="#000000", hovering_color="White")
         QUIT_BUTTON = Button(image=None, pos=(screen_width/2, screen_height/2 + screen_height/15), 
                             text_input="QUIT", font=get_font(menu_font), base_color="#000000", hovering_color="White")
+
 
         for button in [PLAY_BUTTON, QUIT_BUTTON]:
             button.change_color(MENU_MOUSE_POS)
@@ -468,14 +497,14 @@ def music(): #music player
     pygame.mixer.music.load("Assets/music.mp3")
     pygame.mixer.music.play(loops=-1)
     pygame.mixer.music.set_volume(0.3)
-
+	
 pygame.init()
 clock = pygame.time.Clock()
-screen_width = get_monitors()[0].width      #screenwidth and heigth from system
+screen_width = get_monitors()[0].width
 screen_height = get_monitors()[0].height
-font_size = int(screen_height/40)           #scale buttons font for different screen sizes
-menu_font = int(screen_height/10)           #scale menu font foor different screen sizes
 screen = pygame.display.set_mode((screen_width, screen_height))
+font_size = int(screen_height/40)           #scale buttons font for different screen sizes
+menu_font = int(screen_height/10)           #scale menu font for different screen sizes
 pygame.display.set_caption('Sketchimals')
 background_color = pygame.Color('White')
 model = load_model("12_classes.h5")
