@@ -20,7 +20,7 @@ import threading
 def get_font(size): 
     return pygame.font.Font("assets/font.ttf", size)       
             
-class Button():
+class Button():#defines buttons class
 	def __init__(self, image, pos, text_input, font, base_color, hovering_color):
 		self.image = image
 		self.x_pos = pos[0]
@@ -34,23 +34,23 @@ class Button():
 		self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
 		self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
 
-	def update(self, screen):
+	def update(self, screen):#adds the buttons to screen
 		if self.image is not None:
 			screen.blit(self.image, self.rect)
 		screen.blit(self.text, self.text_rect)
 
-	def check_for_input(self, position):
+	def check_for_input(self, position):#checks user input
 		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
 			return True
 		return False
 
-	def change_color(self, position):
+	def change_color(self, position):#buttons change color when mouse hovers over them
 		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
 			self.text = self.font.render(self.text_input, True, self.hovering_color)
 		else:
 			self.text = self.font.render(self.text_input, True, self.base_color)
  
-def draw_buttons():
+def draw_buttons():#defines and draws all buttons
     global RED_BUTTON, PREDICT_BUTTON, ERASER_BUTTON, BLACK_BUTTON, BLUE_BUTTON, CLEAR_BUTTON, GREEN_BUTTON, BACK_BUTTON, ANIMALSOUND_BUTTON, NEXT_BUTTON
     DRAW_MOUSE_POS = pygame.mouse.get_pos()
     PREDICT_BUTTON = Button(image=None, pos=(screen_width/20, screen_height/2 - screen_height/30 * 3), 
@@ -79,7 +79,7 @@ def draw_buttons():
         
     
 def process_image():
-    #processing image to desired format
+    #processing image to desired format and returns it
     subrect = pygame.Rect(screen_width/10, 0, screen_width - screen_width/10, screen_height)
     sub = screen.subsurface(subrect)
     pygame.image.save(sub, 'image1.png')
@@ -90,7 +90,7 @@ def process_image():
     gray_image = cv2.bitwise_not(gray_image)
     return gray_image
     
-def crop_image(image):
+def crop_image(image): #crops image to desired size and returns it
     x, y, w, h = cv2.boundingRect(image)
     output = image[y:y+h,x:x+w]
     top=int(round(h*0.1,0))
@@ -109,7 +109,7 @@ def crop_image(image):
     )
     return padded_image
     
-def sound_to_str(sound):        #takes the name of the sound file and converts it to a string
+def sound_to_str(sound): #takes the name of the sound file and converts it to a string and returns it
     str_sound = str(sound)
     cut_sound = str_sound.split('.')
     correct_animal = cut_sound[0].lower()
@@ -416,7 +416,7 @@ def draw_gameIR():
         pygame.display.update()
         pygame.time.wait(10)  # Add a small delay to avoid high CPU usage 
      
-def options():
+def options():#defines options menu
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
         
@@ -425,7 +425,7 @@ def options():
         OPTIONS_TEXT = get_font(menu_font).render("Input:", True, "Black")
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width/2, screen_height/10))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
-
+        #defines the buttons
         OPTIONS_MOUSE = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15 *3), 
                             text_input="MOUSE", font=get_font(menu_font), base_color="Black", hovering_color="White")
         OPTIONS_TOUCHSCREEN = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15), 
@@ -434,12 +434,12 @@ def options():
                             text_input="IR PEN", font=get_font(menu_font), base_color="Black", hovering_color="White")
         OPTIONS_BACK = Button(image=None, pos=(screen_width/2, screen_height/2 + screen_height/15 *3), 
                             text_input="BACK", font=get_font(menu_font), base_color="Black", hovering_color="White")
-
+        #adds buttons to the screen
         for button in [OPTIONS_MOUSE, OPTIONS_TOUCHSCREEN, OPTIONS_IRPEN, OPTIONS_BACK]:
             button.change_color(OPTIONS_MOUSE_POS)
             button.update(screen)
 
-
+        #main functionality of the options menu
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if OPTIONS_MOUSE.check_for_input(OPTIONS_MOUSE_POS):
@@ -460,26 +460,28 @@ def options():
 
         pygame.display.update()
 
-def main_menu():
+def main_menu():#defines the main menu
     music()
     while True:
         screen.blit(BG, (0,0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
+        #adds logo to the main menu
         logo_rect = logo.get_rect()
         logo_rect.center = (screen_width / 2, screen_height /6)
         screen.blit(logo, logo_rect.topleft)
-
+        #defines the buttons
         PLAY_BUTTON = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15), 
                             text_input="PLAY", font=get_font(menu_font), base_color="#000000", hovering_color="White")
         QUIT_BUTTON = Button(image=None, pos=(screen_width/2, screen_height/2 + screen_height/15), 
                             text_input="QUIT", font=get_font(menu_font), base_color="#000000", hovering_color="White")
 
-
+        #adds buttons to the screen
         for button in [PLAY_BUTTON, QUIT_BUTTON]:
             button.change_color(MENU_MOUSE_POS)
             button.update(screen)
         
+        #main functionality of menu screen
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -499,19 +501,22 @@ def music(): #music player
     pygame.mixer.music.set_volume(0.3)
 	
 pygame.init()
+pygame.mixer.init()
 clock = pygame.time.Clock()
+#gets screensize from system
 screen_width = get_monitors()[0].width
 screen_height = get_monitors()[0].height
 screen = pygame.display.set_mode((screen_width, screen_height))
-font_size = int(screen_height/40)           #scale buttons font for different screen sizes
-menu_font = int(screen_height/10)           #scale menu font for different screen sizes
+#set font sizes
+font_size = int(screen_height/40)           
+menu_font = int(screen_height/10)           
 pygame.display.set_caption('Sketchimals')
 background_color = pygame.Color('White')
+#load and scale all essentials files
 model = load_model("12_classes.h5")
 load_logo = pygame.image.load("Assets/logo.png")
 logo = pygame.transform.scale(load_logo, (screen_width/2, screen_width/2 * load_logo.get_height() / load_logo.get_width()))
 BG = pygame.transform.scale(pygame.image.load("Assets/background1.png"), (screen_width, screen_height))
-pygame.mixer.init()
 
 # rectangles for "AI"s guess and points
 predict_rect = pygame.Rect(screen_width/2 -100, screen_height - 100, 400, 50)
