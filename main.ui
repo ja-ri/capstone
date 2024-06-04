@@ -141,10 +141,17 @@
      </rect>
     </property>
    </widget>
+<<<<<<< HEAD
    <widget class="QPushButton" name="stop_button">
     <property name="geometry">
      <rect>
       <x>800</x>
+=======
+   <widget class="QPushButton" name="save_button">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+>>>>>>> janne1
       <y>540</y>
       <width>131</width>
       <height>41</height>
@@ -156,6 +163,7 @@
      </font>
     </property>
     <property name="text">
+<<<<<<< HEAD
      <string>Stop</string>
     </property>
    </widget>
@@ -163,6 +171,15 @@
     <property name="geometry">
      <rect>
       <x>440</x>
+=======
+     <string>save</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="load_button">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+>>>>>>> janne1
       <y>540</y>
       <width>131</width>
       <height>41</height>
@@ -176,10 +193,14 @@
      </font>
     </property>
     <property name="text">
+<<<<<<< HEAD
      <string>Launch Pygame</string>
+=======
+     <string>Load</string>
+>>>>>>> janne1
     </property>
    </widget>
-   <!-- <widget class="QLabel" name="pygame_mode">
+   <widget class="QLabel" name="pygame_mode">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -191,8 +212,8 @@
     <property name="text">
      <string>Pygame Mode</string>
     </property>
-   </widget> -->
-   <!-- <widget class="QComboBox" name="comboBox_pygame">
+   </widget>
+   <widget class="QComboBox" name="comboBox_pygame">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -216,7 +237,7 @@
       <string>Touch_Screen</string>
      </property>
     </item>
-   </widget> -->
+   </widget>
    <widget class="QCheckBox" name="caliberate_checkBox">
     <property name="geometry">
      <rect>
@@ -234,7 +255,11 @@
     <property name="geometry">
      <rect>
       <x>20</x>
+<<<<<<< HEAD
       <y>270</y>
+=======
+      <y>240</y>
+>>>>>>> janne1
       <width>71</width>
       <height>16</height>
      </rect>
@@ -247,7 +272,11 @@
     <property name="geometry">
      <rect>
       <x>20</x>
+<<<<<<< HEAD
       <y>300</y>
+=======
+      <y>270</y>
+>>>>>>> janne1
       <width>81</width>
       <height>16</height>
      </rect>
@@ -260,7 +289,11 @@
     <property name="geometry">
      <rect>
       <x>20</x>
+<<<<<<< HEAD
       <y>330</y>
+=======
+      <y>300</y>
+>>>>>>> janne1
       <width>91</width>
       <height>20</height>
      </rect>
@@ -273,7 +306,11 @@
     <property name="geometry">
      <rect>
       <x>20</x>
+<<<<<<< HEAD
       <y>360</y>
+=======
+      <y>330</y>
+>>>>>>> janne1
       <width>101</width>
       <height>20</height>
      </rect>
@@ -286,7 +323,11 @@
     <property name="geometry">
      <rect>
       <x>190</x>
+<<<<<<< HEAD
       <y>270</y>
+=======
+      <y>240</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -312,7 +353,11 @@
     <property name="geometry">
      <rect>
       <x>253</x>
+<<<<<<< HEAD
       <y>270</y>
+=======
+      <y>240</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -325,7 +370,11 @@
     <property name="geometry">
      <rect>
       <x>143</x>
+<<<<<<< HEAD
       <y>260</y>
+=======
+      <y>230</y>
+>>>>>>> janne1
       <width>20</width>
       <height>131</height>
      </rect>
@@ -338,7 +387,11 @@
     <property name="geometry">
      <rect>
       <x>253</x>
+<<<<<<< HEAD
       <y>300</y>
+=======
+      <y>270</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -351,7 +404,11 @@
     <property name="geometry">
      <rect>
       <x>190</x>
+<<<<<<< HEAD
       <y>300</y>
+=======
+      <y>270</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -364,7 +421,11 @@
     <property name="geometry">
      <rect>
       <x>253</x>
+<<<<<<< HEAD
       <y>330</y>
+=======
+      <y>300</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -377,7 +438,11 @@
     <property name="geometry">
      <rect>
       <x>190</x>
+<<<<<<< HEAD
       <y>330</y>
+=======
+      <y>300</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -390,7 +455,11 @@
     <property name="geometry">
      <rect>
       <x>250</x>
+<<<<<<< HEAD
       <y>360</y>
+=======
+      <y>330</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -409,7 +478,11 @@
     <property name="geometry">
      <rect>
       <x>190</x>
+<<<<<<< HEAD
       <y>360</y>
+=======
+      <y>330</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -422,7 +495,11 @@
     <property name="geometry">
      <rect>
       <x>20</x>
+<<<<<<< HEAD
       <y>410</y>
+=======
+      <y>380</y>
+>>>>>>> janne1
       <width>291</width>
       <height>20</height>
      </rect>
@@ -431,6 +508,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
+<<<<<<< HEAD
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
@@ -457,11 +535,17 @@
      <string/>
     </property>
    </widget>
+=======
+>>>>>>> janne1
    <widget class="QCheckBox" name="checkBox_TPL">
     <property name="geometry">
      <rect>
       <x>130</x>
+<<<<<<< HEAD
       <y>270</y>
+=======
+      <y>240</y>
+>>>>>>> janne1
       <width>16</width>
       <height>20</height>
      </rect>
@@ -474,7 +558,11 @@
     <property name="geometry">
      <rect>
       <x>130</x>
+<<<<<<< HEAD
       <y>300</y>
+=======
+      <y>270</y>
+>>>>>>> janne1
       <width>16</width>
       <height>20</height>
      </rect>
@@ -487,7 +575,11 @@
     <property name="geometry">
      <rect>
       <x>130</x>
+<<<<<<< HEAD
       <y>330</y>
+=======
+      <y>300</y>
+>>>>>>> janne1
       <width>16</width>
       <height>20</height>
      </rect>
@@ -500,6 +592,7 @@
     <property name="geometry">
      <rect>
       <x>130</x>
+<<<<<<< HEAD
       <y>360</y>
       <width>16</width>
       <height>20</height>
@@ -527,6 +620,9 @@
      <rect>
       <x>180</x>
       <y>180</y>
+=======
+      <y>330</y>
+>>>>>>> janne1
       <width>16</width>
       <height>20</height>
      </rect>
@@ -539,7 +635,11 @@
     <property name="geometry">
      <rect>
       <x>20</x>
+<<<<<<< HEAD
       <y>220</y>
+=======
+      <y>190</y>
+>>>>>>> janne1
       <width>101</width>
       <height>16</height>
      </rect>
@@ -552,7 +652,11 @@
     <property name="geometry">
      <rect>
       <x>130</x>
+<<<<<<< HEAD
       <y>220</y>
+=======
+      <y>190</y>
+>>>>>>> janne1
       <width>160</width>
       <height>16</height>
      </rect>
@@ -571,7 +675,11 @@
     <property name="geometry">
      <rect>
       <x>300</x>
+<<<<<<< HEAD
       <y>220</y>
+=======
+      <y>190</y>
+>>>>>>> janne1
       <width>51</width>
       <height>23</height>
      </rect>
@@ -580,6 +688,27 @@
      <number>1000</number>
     </property>
    </widget>
+<<<<<<< HEAD
+=======
+   <widget class="QPushButton" name="end_button">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>540</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Stop</string>
+    </property>
+   </widget>
+>>>>>>> janne1
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

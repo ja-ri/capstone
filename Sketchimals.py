@@ -80,7 +80,7 @@ def draw_buttons():
     
 def process_image():
     #processing image to desired format
-    subrect = pygame.Rect(100, 0, screen_width - 100, screen_height)
+    subrect = pygame.Rect(screen_width/10, 0, screen_width - screen_width/10, screen_height)
     sub = screen.subsurface(subrect)
     pygame.image.save(sub, 'image1.png')
     image = Image.open("image1.png")
@@ -132,7 +132,7 @@ def draw_game():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and a>=100:
+            elif event.type == pygame.MOUSEBUTTONDOWN and a>=screen_width/10:
                 if event.button == 1:  # Left mouse button
                     drawing = True
                     last_pos = pygame.mouse.get_pos()  # Get the starting position
@@ -525,6 +525,3 @@ while True:
             sys.exit()
     main_menu()      
     pygame.display.flip()
-
-
-#Pig, elephant, cow, frog, monkey, dolphin, parrot, snake, dog, cat, sheep, horse

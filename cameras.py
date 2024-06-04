@@ -10,21 +10,19 @@ def get_available_cameras(max_cameras=2):
         else:
             ret, frame = cap.read()
             if ret:
-                camera_devices.append(index)
+                camera = "video" + str(index)
+                camera_devices.append(camera)
                 print(f"Camera at index {index} is available.")
             cap.release()
-    cameras = []
-    for i in range(len(camera_devices)):
-        
-        camera = "camera"+ str(i)
-        cameras.append(camera)
-    return cameras
+    
+
+    return camera_devices
 
 if __name__ == "__main__":
     available_cameras = get_available_cameras()
     if available_cameras:
         print("Available cameras:")
-        for device_index in available_cameras:
-            print(f"Camera {device_index}")
+        for device_name in available_cameras:
+            print(f"/dev/{device_name}")
     else:
         print("No cameras detected.")

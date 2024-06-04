@@ -34,6 +34,7 @@ class image_thread(QThread):
 
     def stop(self):
         self.not_stoped = True
+        self.wait()
 
     def caliberate_on(self):
         self.caliberate_flag = True
@@ -78,6 +79,7 @@ class image_thread(QThread):
 
 
     def main_camcv(self):
+
         cap = cv2.VideoCapture(self.camera_index)  # Open the selected camera
         
         if not cap.isOpened():
