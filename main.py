@@ -13,14 +13,12 @@ from camera_opncv import image_thread
 # from pygame_opencv import PyGameMouse_thread
 # from pygame_opencv_ir import PyGameIR_thread
 
-
 class capstone():
     
     def __init__(self):
         self.loader = QUiLoader()
         self.app = QtWidgets.QApplication(sys.argv)
         self.window = self.loader.load("main.ui")
-
         # ---------- variables---------------
         # self.image = np.ndarray()
         # ---------- Button Initialization --------------------------
@@ -102,8 +100,10 @@ class capstone():
         print("save")
         with open('caliberation_data.txt', 'w') as file:
             # Append some text to the file
-            content = f"{self.comboBox.currentText().strip("video")}\n{self.slider_box.value()}\n{self.value_tplx.value()}\n{self.value_tply.value()}\n{self.value_tprx.value()}\n{self.value_tpry.value()}\n{self.value_btlx.value()}\n{self.value_btly.value()}\n{self.value_btrx.value()}\n{self.value_btry.value()} "
+            content = f"{self.comboBox.currentText().strip('video')}\n{self.slider_box.value()}\n{self.value_tplx.value()}\n{self.value_tply.value()}\n{self.value_tprx.value()}\n{self.value_tpry.value()}\n{self.value_btlx.value()}\n{self.value_btly.value()}\n{self.value_btrx.value()}\n{self.value_btry.value()}"
+
             file.write(content)
+
 
     def closeEvent(self, event):
         self.stop_program()
@@ -113,7 +113,7 @@ class capstone():
         print("stop")
         with open('caliberation_data.txt', 'w') as file:
             # Append some text to the file
-            content = f"{self.comboBox.currentText().strip("video")}\n{self.slider_box.value()}\n{self.value_tplx.value()}\n{self.value_tply.value()}\n{self.value_tprx.value()}\n{self.value_tpry.value()}\n{self.value_btlx.value()}\n{self.value_btly.value()}\n{self.value_btrx.value()}\n{self.value_btry.value()} "
+            content = f"{self.comboBox.currentText().strip('video')}\n{self.slider_box.value()}\n{self.value_tplx.value()}\n{self.value_tply.value()}\n{self.value_tprx.value()}\n{self.value_tpry.value()}\n{self.value_btlx.value()}\n{self.value_btly.value()}\n{self.value_btrx.value()}\n{self.value_btry.value()} "
             file.write(content)
         self.update_output_terminal("Exiting application...")
         if self.opencv_thread.isRunning():
@@ -182,6 +182,7 @@ class capstone():
             self.pygame_thread.stop_pygame_functions()
             self.graphicview.scene().clear()
         # self.opencv_thread.stop_signal.emit(True)
+        
     def on_radio_button_toggled(self):
         if self.radiobutton.isChecked():
             self.update_output_terminal("Searching for cameras")
@@ -191,6 +192,7 @@ class capstone():
             self.comboBox.clear()
             self.comboBox.addItem("No camera selected")
             self.update_output_terminal("stop searching cameras")
+
     def run_thread(self):
         current_camera_index = self.window.comboBox.currentIndex()
         camera_name = self.window.comboBox.itemText(current_camera_index)
@@ -248,10 +250,8 @@ class capstone():
         self.opencv_thread.value_btry = int(self.value_btry.value())
 
 def main_thread():
-    
     start_capston = capstone()
     start_capston.window.show()
-    
     # Use a QTimer to periodically process PyQt events
     timer = QTimer()
     timer.timeout.connect(start_capston.app.processEvents)

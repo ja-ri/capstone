@@ -126,7 +126,7 @@ def draw_game():
     pygame.mixer.music.play(loops=0)
      
     while True: 
-	draw_buttons()
+        draw_buttons()
         for event in pygame.event.get():
             (a, s) = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
@@ -159,7 +159,7 @@ def draw_game():
                 if RED_BUTTON.check_for_input(event.pos):
                     color = 'Red'
                     size = 10
-               
+            
                 elif GREEN_BUTTON.check_for_input(event.pos):
                     color = 'Green'
                     size = 10
@@ -186,47 +186,47 @@ def draw_game():
                 elif ANIMALSOUND_BUTTON.check_for_input(event.pos):
                     pygame.mixer.music.play(loops=0)
 
-		elif NEXT_BUTTON.check_for_input(event.pos):
-                    draw_game()
-                    
-                elif PREDICT_BUTTON.check_for_input(event.pos):
-                    gray_image = process_image()
-                    test = crop_image(gray_image)
-                    test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
-                    cv2.imwrite('image0.jpg', test)
-                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
-                    cv2.imwrite('image1.jpg', test)
-                    # Define a kernel for morphological operations
-                    kernel = np.ones((1, 1), np.uint8)
-                    # Apply morphological operations to thin the edges
-                    test = cv2.erode(test, kernel, iterations=10)
-                    test = test/255.0
-                    test = np.expand_dims(test, axis=0)
-                    with open('encoder.pickle','rb') as f:
-                        encode=pickle.load(f)
-                    prediction = model.predict(test)
-                    max_index = np.argmax(prediction)
-                    one_hot_encoded = np.zeros_like(prediction)
-                    one_hot_encoded[0][max_index] = 1
-                    predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
-                    max_value = round((prediction.max() * 100), 1)
-                    if predicted_variables == sound_to_str(sound_path):
-                        predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
-                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
-                        screen.blit(predict_text, predict_rect)
-                        points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
-                        points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
-                        screen.blit(points_text, points_rect)
-                    elif predicted_variables != sound_to_str(sound_path):
-                        fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
-                        fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
-                        screen.blit(fail_text, fail_rect)
-                        predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
-                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
-                        screen.blit(predict_text, predict_rect)
-                    pygame.display.update()              
-                    
-                    
+            elif NEXT_BUTTON.check_for_input(event.pos):
+                        draw_game()
+                        
+            elif PREDICT_BUTTON.check_for_input(event.pos):
+                gray_image = process_image()
+                test = crop_image(gray_image)
+                test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
+                cv2.imwrite('image0.jpg', test)
+                _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                cv2.imwrite('image1.jpg', test)
+                # Define a kernel for morphological operations
+                kernel = np.ones((1, 1), np.uint8)
+                # Apply morphological operations to thin the edges
+                test = cv2.erode(test, kernel, iterations=10)
+                test = test/255.0
+                test = np.expand_dims(test, axis=0)
+                with open('encoder.pickle','rb') as f:
+                    encode=pickle.load(f)
+                prediction = model.predict(test)
+                max_index = np.argmax(prediction)
+                one_hot_encoded = np.zeros_like(prediction)
+                one_hot_encoded[0][max_index] = 1
+                predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
+                max_value = round((prediction.max() * 100), 1)
+                if predicted_variables == sound_to_str(sound_path):
+                    predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
+                    predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                    screen.blit(predict_text, predict_rect)
+                    points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
+                    points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                    screen.blit(points_text, points_rect)
+                elif predicted_variables != sound_to_str(sound_path):
+                    fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
+                    fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                    screen.blit(fail_text, fail_rect)
+                    predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
+                    predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                    screen.blit(predict_text, predict_rect)
+                pygame.display.update()              
+                
+                
 
             elif event.type == pygame.QUIT:
                 pygame.quit()
@@ -238,7 +238,7 @@ def draw_game():
                 elif event.key == pygame.K_c:
                     screen.fill('White')
                     draw_buttons()
-        pygame.display.update()
+            pygame.display.update()
 
 def get_data_IR():
     with open('caliberation_data.txt', 'r') as file:
@@ -282,7 +282,7 @@ def draw_gameIR():
         return
 
     while True: 
-	draw_buttons()
+        draw_buttons()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -332,7 +332,7 @@ def draw_gameIR():
                 if RED_BUTTON.check_for_input(end_pos):
                     color = 'Red'
                     size = 10
-               
+            
                 elif GREEN_BUTTON.check_for_input(end_pos):
                     color = 'Green'
                     size = 10
@@ -359,64 +359,64 @@ def draw_gameIR():
                 elif ANIMALSOUND_BUTTON.check_for_input(end_pos):
                     pygame.mixer.music.play(loops=0)
 
-		elif NEXT_BUTTON.check_for_input(end_pos):
-		    draw_game()
-                    
-                elif PREDICT_BUTTON.check_for_input(end_pos):
-                    gray_image = process_image()
-                    test = crop_image(gray_image)
-                    test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
-                    cv2.imwrite('image0.jpg', test)
-                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
-                    cv2.imwrite('image1.jpg', test)
-                    # Define a kernel for morphological operations
-                    kernel = np.ones((1, 1), np.uint8)
-                    # Apply morphological operations to thin the edges
-                    test = cv2.erode(test, kernel, iterations=10)
-                    test = test/255.0
-                    test = np.expand_dims(test, axis=0)
-                    with open('encoder.pickle','rb') as f:
-                        encode=pickle.load(f)
-                    prediction = model.predict(test)
-                    max_index = np.argmax(prediction)
-                    one_hot_encoded = np.zeros_like(prediction)
-                    one_hot_encoded[0][max_index] = 1
-                    predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
-                    max_value = round((prediction.max() * 100), 1)
-                    if predicted_variables == sound_to_str(sound_path):
-                        predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
-                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
-                        screen.blit(predict_text, predict_rect)
-                        points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
-                        points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
-                        screen.blit(points_text, points_rect)
-                    elif predicted_variables != sound_to_str(sound_path):
-                        fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
-                        fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
-                        screen.blit(fail_text, fail_rect)
-                        predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
-                        predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
-                        screen.blit(predict_text, predict_rect)
-                        pygame.display.update()
-                else:
-                    
-                    if last_pos != (0, 0):
-                        dx = end_pos[0] - last_pos[0]
-                        dy = end_pos[1] - last_pos[1]
-                        distance = max(abs(dx), abs(dy))
-                        if distance < 50:
-                            for i in range(1, distance + 1):
-                                x = last_pos[0] + int(float(i) / distance * dx)
-                                y = last_pos[1] + int(float(i) / distance * dy)
-                                pygame.draw.circle(screen, color, (x, y), size)
-                            last_pos = end_pos  # Update last position
-                    last_pos = end_pos
+            elif NEXT_BUTTON.check_for_input(end_pos):
+                draw_game()
+                        
+            elif PREDICT_BUTTON.check_for_input(end_pos):
+                gray_image = process_image()
+                test = crop_image(gray_image)
+                test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)
+                cv2.imwrite('image0.jpg', test)
+                _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                cv2.imwrite('image1.jpg', test)
+                # Define a kernel for morphological operations
+                kernel = np.ones((1, 1), np.uint8)
+                # Apply morphological operations to thin the edges
+                test = cv2.erode(test, kernel, iterations=10)
+                test = test/255.0
+                test = np.expand_dims(test, axis=0)
+                with open('encoder.pickle','rb') as f:
+                    encode=pickle.load(f)
+                prediction = model.predict(test)
+                max_index = np.argmax(prediction)
+                one_hot_encoded = np.zeros_like(prediction)
+                one_hot_encoded[0][max_index] = 1
+                predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
+                max_value = round((prediction.max() * 100), 1)
+                if predicted_variables == sound_to_str(sound_path):
+                    predict_text = get_font(25).render(f"You drew a {predicted_variables}", True, "Black", "White") 
+                    predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                    screen.blit(predict_text, predict_rect)
+                    points_text = get_font(25).render(f"Points: {max_value}/100", True, "Black", "White")
+                    points_rect = points_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                    screen.blit(points_text, points_rect)
+                elif predicted_variables != sound_to_str(sound_path):
+                    fail_text = get_font(25).render(f"You were supposed to draw {sound_to_str(sound_path)}, Try again!", True, "Black", "White")
+                    fail_rect = fail_text.get_rect(center = (screen_width/2 -100, screen_height - 50))
+                    screen.blit(fail_text, fail_rect)
+                    predict_text = get_font(25).render(f"Prediction is {predicted_variables}", True, "Black", "White") 
+                    predict_rect = predict_text.get_rect(center = (screen_width/2 -100, screen_height - 100))
+                    screen.blit(predict_text, predict_rect)
+                    pygame.display.update()
             else:
-                last_pos = (0, 0)
+                
+                if last_pos != (0, 0):
+                    dx = end_pos[0] - last_pos[0]
+                    dy = end_pos[1] - last_pos[1]
+                    distance = max(abs(dx), abs(dy))
+                    if distance < 50:
+                        for i in range(1, distance + 1):
+                            x = last_pos[0] + int(float(i) / distance * dx)
+                            y = last_pos[1] + int(float(i) / distance * dy)
+                            pygame.draw.circle(screen, color, (x, y), size)
+                        last_pos = end_pos  # Update last position
+                last_pos = end_pos
+        else:
+            last_pos = (0, 0)
 
-        pygame.display.update()
-        pygame.time.wait(10)  # Add a small delay to avoid high CPU usage        # for event in pygame.event.get():
-     
+    pygame.display.update()
+    pygame.time.wait(10)  # Add a small delay to avoid high CPU usage        # for event in pygame.event.get():
+    
 def options():
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
@@ -424,7 +424,7 @@ def options():
         screen.blit(BG, (0, 0))
 
         OPTIONS_TEXT = get_font(menu_font).render("Input:", True, "Black")
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width/2, screen_heigth/10))
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width/2, screen_height/10))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
         OPTIONS_MOUSE = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15 *3), 
@@ -469,7 +469,7 @@ def main_menu():
         MENU_MOUSE_POS = pygame.mouse.get_pos()
         logo_rect = logo.get_rect()
         logo_rect.center = (screen_width / 2, screen_height /6)
-        screen.blit(logo1, logo_rect.topleft)
+        screen.blit(logo, logo_rect.topleft)
 
         PLAY_BUTTON = Button(image=None, pos=(screen_width/2, screen_height/2 - screen_height/15), 
                             text_input="PLAY", font=get_font(menu_font), base_color="#000000", hovering_color="White")
@@ -495,7 +495,7 @@ def main_menu():
         pygame.display.update()
 
 def music(): #music player
-    pygame.mixer.music.load("Assets/music.mp3")
+    pygame.mixer.music.load("assets/music.mp3")
     pygame.mixer.music.play(loops=-1)
     pygame.mixer.music.set_volume(0.3)
 	
@@ -509,9 +509,9 @@ menu_font = int(screen_height/10)           #scale menu font for different scree
 pygame.display.set_caption('Sketchimals')
 background_color = pygame.Color('White')
 model = load_model("12_classes.h5")
-load_logo = pygame.image.load("Assets/logo.png")
+load_logo = pygame.image.load("assets/logo.png")
 logo = pygame.transform.scale(load_logo, (screen_width/2, screen_width/2 * load_logo.get_height() / load_logo.get_width()))
-BG = pygame.transform.scale(pygame.image.load("Assets/background1.png"), (screen_width, screen_height))
+BG = pygame.transform.scale(pygame.image.load("assets/background1.png"), (screen_width, screen_height))
 pygame.mixer.init()
 
 # rectangles for "AI"s guess and points
