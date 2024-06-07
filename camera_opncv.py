@@ -19,8 +19,8 @@ class image_thread(QThread):
         self.height = 0
         self.channel = 3
         self.not_stoped = False
-        self.caliberate_flag = False
-        self.output_caliberated_image = False
+        self.calibrate_flag = False
+        self.output_calibrated_image = False
         self.value_tplx = 0
         self.value_tply = 0
         self.value_tprx = 0
@@ -36,10 +36,10 @@ class image_thread(QThread):
         self.not_stoped = True
         self.wait()
 
-    def caliberate_on(self):
-        self.caliberate_flag = True
-    def caliberate_off(self):
-        self.caliberate_flag = False
+    def calibrate_on(self):
+        self.calibrate_flag = True
+    def calibrate_off(self):
+        self.calibrate_flag = False
 
     def run(self):
         while(not self.not_stoped):
@@ -73,7 +73,7 @@ class image_thread(QThread):
             cropped_image = np.ascontiguousarray(cropped_image)
             return cropped_image
         else:
-            # print("Non -caliberated image broadcasting")
+            # print("Non -calibrated image broadcasting")
             image = np.ascontiguousarray(image)
             return image
 
@@ -122,7 +122,7 @@ class image_thread(QThread):
                     # print(cX,cY)
                     coordinates = [cX,cY]
 
-                    if (self.caliberate_flag):
+                    if (self.calibrate_flag):
                         self.emit_x_y(coordinates)
             
             self.emit_image(self.output_calib_image_(thresh))
