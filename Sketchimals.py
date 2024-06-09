@@ -255,7 +255,6 @@ def get_data_IR():
             return 0
 
 def draw_gameIR():
-
     screen.fill((background_color))
     color = 'Black' #pen color
     size = 10       #pen size
@@ -354,7 +353,7 @@ def draw_gameIR():
                 elif NEXT_BUTTON.check_for_input(end_pos):  #gives new animal sound
                     draw_game()
                         
-                elif PREDICT_BUTTON.check_for_input(event.pos): #when drawing is finished gives the image to AI model and it predicts what animal was drawn and gives score based on it's accuracy
+                elif PREDICT_BUTTON.check_for_input(end_pos): #when drawing is finished gives the image to AI model and it predicts what animal was drawn and gives score based on it's accuracy
                     gray_image = process_image()    #processing image to desired format (grayscale) and returns it
                     test = crop_image(gray_image)   #crops the image to desired format (square) and returns it
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)  #resizes the image to 28x28 pixels so the model can use it
@@ -438,7 +437,6 @@ def options():
                 if OPTIONS_TOUCHSCREEN.check_for_input(OPTIONS_MOUSE_POS):  #option for built in touchscreen mode of the game
                     draw_game()
                 if OPTIONS_IRPEN.check_for_input(OPTIONS_MOUSE_POS):    #option for IR pen mode of the game
-                    pyqt_thread = threading.Thread(target=main_thread)
                     draw_gameIR()
                     print("main done")
                 if OPTIONS_BACK.check_for_input(OPTIONS_MOUSE_POS): #exits to main menu

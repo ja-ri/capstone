@@ -5,20 +5,20 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QApplication, QGraphicsPixmapItem, QMainWindow, QGraphicsScene
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import QThread, Signal, QObject, Qt , QTimer
+from PySide6.QtCore import QThread, Signal, QObject, Qt, QTimer
 import cv2
 from cameras import get_available_cameras
 import numpy as np
 from camera_opncv import image_thread
 
 class capstone():
-    
+    # Initialize the application
     def __init__(self):
         self.loader = QUiLoader()
         self.app = QtWidgets.QApplication(sys.argv)
         self.window = self.loader.load("main.ui")
-        # ---------- variables---------------
-        # ---------- Button Initialization --------------------------
+
+        # Initialize UI elements
         self.radiobutton = self.window.radiobutton
         self.comboBox = self.window.comboBox
         self.stop_button = self.window.end_button
@@ -27,12 +27,15 @@ class capstone():
         self.save_button = self.window.save_button
         self.textbox = self.window.textbox
         self.slider_box = self.window.slider_box
-        # ---- Calibration buttons
-        self.calibrate_mode = self.window.calibrate_checkBox
+
+        # Calibration buttons
+        self.calibrate_mode = self.window.caliberate_checkBox
         self.calibrate_TPL = self.window.checkBox_TPL
         self.calibrate_TPR = self.window.checkBox_TPR
         self.calibrate_BTL = self.window.checkBox_BTL
         self.calibrate_BTR = self.window.checkBox_BTR
+
+        # Calibration value boxes
         self.value_tplx = self.window.tplx
         self.value_tplx.setRange(0, 1000)
         self.value_tply = self.window.tply
@@ -49,15 +52,19 @@ class capstone():
         self.value_btrx.setRange(0, 1000)
         self.value_btry = self.window.btry
         self.value_btry.setRange(0, 1000)
+
+        # Slider
         self.slider = self.window.horizontalSlider
         self.slider_box.setValue(self.slider.value())
-        # ---------- Graphic Box --------------------
+
+        # Graphic view
         self.graphicview = self.window.graphicview
         self.graphic_width = self.graphicview.size().width()
         self.graphic_height = self.graphicview.size().height()
         self.graphic_color_type = 3
         self.stop_signal = False
-        # ---------- connection --------------------------
+
+        # Connect UI elements to their respective functions
         self.radiobutton.setChecked(False)
         self.radiobutton.toggled.connect(self.on_radio_button_toggled)
         self.startbutton.clicked.connect(self.run_start)
@@ -67,50 +74,49 @@ class capstone():
         self.calibrate_TPL.stateChanged.connect(self.update_xy_)
         self.calibrate_TPR.stateChanged.connect(self.update_xy_)
         self.slider.valueChanged.connect(self.slider_chaged_)
-        # ---------- Thread Initialization-------------------------
+
+        # Initialize the OpenCV thread
         self.opencv_thread = image_thread()
         self.opencv_thread.thesh_value = self.slider.value()
 
+    # Function to update slider value
     def slider_chaged_(self):
         self.slider_box.setValue(self.slider.value())
         self.opencv_thread.thesh_value = self.slider.value()
 
+    # Load calibration values from a file
     def load_calib_values(self):
         print("load")
-        # Open the file in read mode
         with open('calibration_data.txt', 'r') as file:
-            # Iterate over each line in the file
             for i, line in enumerate(file):
                 items = [self.value_tplx, self.value_tply, self.value_tprx, self.value_tpry, self.value_btlx, self.value_btly, self.value_btrx, self.value_btry]
                 items[i].setValue(int(line.strip()))
 
+    # Save calibration values to a file
     def save_calib_values(self):
         print("save")
         with open('calibration_data.txt', 'w') as file:
-            # Append some text to the file
             content = f"{self.comboBox.currentText().strip('video')}\n{self.slider_box.value()}\n{self.value_tplx.value()}\n{self.value_tply.value()}\n{self.value_tprx.value()}\n{self.value_tpry.value()}\n{self.value_btlx.value()}\n{self.value_btly.value()}\n{self.value_btrx.value()}\n{self.value_btry.value()}"
-
             file.write(content)
 
-
+    # Close event handling
     def closeEvent(self, event):
         self.stop_program()
         event.accept()
 
+    # Stop the program and save the calibration data
     def stop_program(self):
-        print("stop")
         with open('calibration_data.txt', 'w') as file:
-            # Append some text to the file
             content = f"{self.comboBox.currentText().strip('video')}\n{self.slider_box.value()}\n{self.value_tplx.value()}\n{self.value_tply.value()}\n{self.value_tprx.value()}\n{self.value_tpry.value()}\n{self.value_btlx.value()}\n{self.value_btly.value()}\n{self.value_btrx.value()}\n{self.value_btry.value()} "
             file.write(content)
         self.update_output_terminal("Exiting application...")
         if self.opencv_thread.isRunning():
             self.opencv_thread.stop()
-            self.opencv_thread.wait()  # Ensure the thread has finished before exiting
+            self.opencv_thread.wait()
         self.app.quit()
 
+    # Update calibration values based on the selected checkbox
     def value_add_xy_(self, mssg):
-        #print(f"im in setvalue {mssg}")
         if self.calibrate_TPL.isChecked():
             self.value_tplx.setValue(mssg[0])
             self.value_tply.setValue(mssg[1])
@@ -124,16 +130,19 @@ class capstone():
             self.value_btrx.setValue(mssg[0])
             self.value_btry.setValue(mssg[1])
 
+    # Connect calibration update signal
     def update_xy_(self):
         if self.calibrate_mode.isChecked():
             self.opencv_thread.x_y_update.connect(self.value_add_xy_)
 
+    # Load calibration mode
     def calibrate_load_(self):
         if self.calibrate_load.isChecked():
             self.update_output_terminal("Loading calibration file")
         else:
             self.update_output_terminal("Disable calibration loading")
 
+    # Enable or disable calibration mode
     def calibrate_mode_(self):
         if self.calibrate_mode.isChecked():
             self.opencv_thread.calibrate_on()
@@ -142,16 +151,14 @@ class capstone():
             self.opencv_thread.calibrate_off()
             self.update_output_terminal("Calibration mode deactivated")
 
-    def select_bcombo_mode(self):
-        self.pygame_thread.select_mode_func(self.comboBox_pygame.currentText())
-        print(f"Current selected mode is : {self.pygame_thread.select_mode}")
-
+    # Stop the camera feed
     def stop_camera_opencv(self):
         if self.comboBox.currentText() != "No camera selected":
             self.opencv_thread.stop()
             self.pygame_thread.stop_pygame_functions()
             self.graphicview.scene().clear()
-        
+
+    # Toggle radio button
     def on_radio_button_toggled(self):
         if self.radiobutton.isChecked():
             self.update_output_terminal("Searching for cameras")
@@ -162,6 +169,7 @@ class capstone():
             self.comboBox.addItem("No camera selected")
             self.update_output_terminal("stop searching cameras")
 
+    # Run the OpenCV thread
     def run_thread(self):
         current_camera_index = self.window.comboBox.currentIndex()
         camera_name = self.window.comboBox.itemText(current_camera_index)
@@ -173,9 +181,11 @@ class capstone():
         self.opencv_thread.image_updated.connect(self.render_graphics)
         self.opencv_thread.start()
 
+    # Update the output terminal with a message
     def update_output_terminal(self, mssg):
         self.textbox.setText(mssg)
 
+    # Start the camera feed
     def run_start(self):
         if self.comboBox.currentText() == "No camera selected":
             self.update_output_terminal("Please select the camera")
@@ -183,25 +193,22 @@ class capstone():
             self.opencv_thread.not_stoped = False
             self.run_thread()
 
+    # Render the camera feed to the graphics view
     def render_graphics(self, image):
         self.image = image
-        # Convert the numpy array image to a QImage
         q_image = QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0], QImage.Format_Grayscale8)
-        # Get the scene associated with the QGraphicsView
         scene = self.graphicview.scene()
-        # If no scene exists, create a new one
         if scene is None:
             scene = QGraphicsScene()
             self.graphicview.setScene(scene)
         else:
             scene.clear()
-        # Create a QGraphicsPixmapItem with the QImage
         pixmap_item = QGraphicsPixmapItem(QPixmap.fromImage(q_image))
         pixmap_item.setTransformationMode(Qt.SmoothTransformation)
         pixmap_item.setScale(self.graphicview.width() / pixmap_item.boundingRect().width())
-        # Add the QGraphicsPixmapItem to the scene
         scene.addItem(pixmap_item)
 
+    # Update calibration coordinates
     def update_calibration_coordinates(self):
         self.opencv_thread.value_tplx = int(self.value_tplx.value())
         self.opencv_thread.value_tply = int(self.value_tply.value())
@@ -212,16 +219,15 @@ class capstone():
         self.opencv_thread.value_btrx = int(self.value_btrx.value())
         self.opencv_thread.value_btry = int(self.value_btry.value())
 
+# Main thread to start the application
 def main_thread():
     start_capston = capstone()
     start_capston.window.show()
-    # Use a QTimer to periodically process PyQt events
     timer = QTimer()
     timer.timeout.connect(start_capston.app.processEvents)
-    timer.start(100)  # Adjust the interval as needed
+    timer.start(100)
     start_capston.app.exec()
-    print("Exited gracefully")
-
+    print("Exiting gracefully!")
 
 if __name__ == "__main__":
     main_thread()
