@@ -236,7 +236,6 @@ def draw_game():
 def get_data_IR():
     with open('calibration_data.txt', 'r') as file:
         lines = file.readlines()
-        print(lines)
         if len(lines) >= 10:  # Ensure there are enough lines
             camera = (int(lines[0].strip("video")))
             thresh = int(lines[1])
@@ -265,8 +264,7 @@ def draw_gameIR():
     last_pos = (0,0)
 
     calibration_data = get_data_IR()
-    print(calibration_data)
-    cap = cv2.VideoCapture(calibration_data[0])  # Open the selected camera
+    cap = cv2.VideoCapture(int(calibration_data[0]))  # Open the selected camera
     
     if not cap.isOpened():
         print("Error: Failed to open camera.")
@@ -318,7 +316,7 @@ def draw_gameIR():
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                end_pos = (cX, cY)
+                end_pos = (cX, cY) #store the centroid x and y values to a tuple called end_pos
 
                 if RED_BUTTON.check_for_input(end_pos):   #changes the pen color to red
                     color = 'Red'
@@ -388,12 +386,11 @@ def draw_gameIR():
                         screen.blit(predict_text, predict_rect)
                         pygame.display.update()
                 else:
-                    
-                    if last_pos != (0, 0):
-                        dx = end_pos[0] - last_pos[0]
-                        dy = end_pos[1] - last_pos[1]
-                        distance = max(abs(dx), abs(dy))
-                        if distance < 50:
+                    if last_pos != (0, 0): #if the enf pos coordinated are not zero then execute below
+                        dx = end_pos[0] - last_pos[0] #Takes the difference between last saved x value and the current x value
+                        dy = end_pos[1] - last_pos[1] #Takes the difference between last saved y value and the current y value
+                        distance = max(abs(dx), abs(dy)) #takes the maximum value
+                        if distance < 50: #if the distance is less than 50px then we connect last and current to have smooth strokes
                             for i in range(1, distance + 1):
                                 x = last_pos[0] + int(float(i) / distance * dx)
                                 y = last_pos[1] + int(float(i) / distance * dy)
@@ -403,8 +400,8 @@ def draw_gameIR():
             else:
                 last_pos = (0, 0)
 
-    pygame.display.update()
-    pygame.time.wait(10)  # Add a small delay to avoid high CPU usage 
+        pygame.display.update()
+        pygame.time.wait(10)  # Add a small delay to avoid high CPU usage 
     
 def options():
     while True:
@@ -438,7 +435,6 @@ def options():
                     draw_game()
                 if OPTIONS_IRPEN.check_for_input(OPTIONS_MOUSE_POS):    #option for IR pen mode of the game
                     draw_gameIR()
-                    print("main done")
                 if OPTIONS_BACK.check_for_input(OPTIONS_MOUSE_POS): #exits to main menu
                     main_menu()
 
