@@ -75,24 +75,24 @@ def draw_buttons(): #defines and draws all the buttons
     
 def process_image():
     #processing image to desired format and returns it
-    subrect = pygame.Rect(screen_width/10, 0, screen_width - screen_width/10, screen_height)
+    subrect = pygame.Rect(screen_width/10, 0, screen_width - screen_width/10, screen_height) #get the desired part of the screen
     sub = screen.subsurface(subrect)
     pygame.image.save(sub, 'image1.png')
     image = Image.open("image1.png")
     image = image.save("image1.png")
     image = cv2.imread("image1.png")
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray_image = cv2.bitwise_not(gray_image)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) #convert to grayscale
+    gray_image = cv2.bitwise_not(gray_image) #invert colors
     return gray_image
     
-def crop_image(image):  #crops the image to desired format (square) and returns it
-    x, y, w, h = cv2.boundingRect(image)
-    output = image[y:y+h,x:x+w]
+def crop_image(image):  #crops the image to desired format and returns it
+    x, y, w, h = cv2.boundingRect(image) #get width, height and top left coordinate of bounding rectangle
+    output = image[y:y+h,x:x+w] #crop the bounding rectangle
+    #add padding
     top=int(round(h*0.1,0))
     bottom=int(round(h*0.1,0))
     left=int(round(y*0.2,0))
     right=int(round(y*0.2,0))
-    print(top)
     padded_image = cv2.copyMakeBorder(
         output,
         top=top,
@@ -186,20 +186,20 @@ def draw_game():
                         
                 elif PREDICT_BUTTON.check_for_input(event.pos): #when drawing is finished gives the image to AI model and it predicts what animal was drawn and gives score based on it's accuracy
                     gray_image = process_image()    #processing image to desired format (grayscale) and returns it
-                    test = crop_image(gray_image)   #crops the image to desired format (square) and returns it
+                    test = crop_image(gray_image)   #crops the image to desired format and returns it
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)  #resizes the image to 28x28 pixels so the model can use it
                     cv2.imwrite('image0.jpg', test)
-                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY) #maxes out every white value (helps with model prediction)
                     cv2.imwrite('image1.jpg', test)
                     kernel = np.ones((1, 1), np.uint8)  # Define a kernel for morphological operations
                     test = cv2.erode(test, kernel, iterations=10)   # Apply morphological operations to thin the edges
-                    test = test/255.0
-                    test = np.expand_dims(test, axis=0)
+                    test = test/255.0 #normalize
+                    test = np.expand_dims(test, axis=0) #extra dimension so the image can be fed to the model
                     with open('encoder.pickle','rb') as f:
-                        encode=pickle.load(f)
-                    prediction = model.predict(test)
-                    max_index = np.argmax(prediction)
-                    one_hot_encoded = np.zeros_like(prediction)
+                        encode=pickle.load(f) #encoder to turn one-hot-encoded vector to animal names
+                    prediction = model.predict(test) #model prediction
+                    max_index = np.argmax(prediction) #highest probability index
+                    one_hot_encoded = np.zeros_like(prediction) 
                     one_hot_encoded[0][max_index] = 1
                     predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
                     max_value = round((prediction.max() * 100), 1)  #calculates the points for player
@@ -353,19 +353,19 @@ def draw_gameIR():
                         
                 elif PREDICT_BUTTON.check_for_input(end_pos): #when drawing is finished gives the image to AI model and it predicts what animal was drawn and gives score based on it's accuracy
                     gray_image = process_image()    #processing image to desired format (grayscale) and returns it
-                    test = crop_image(gray_image)   #crops the image to desired format (square) and returns it
+                    test = crop_image(gray_image)   #crops the image to desired format and returns it
                     test = cv2.resize(test, (28,28), interpolation=cv2.INTER_AREA)  #resizes the image to 28x28 pixels so the model can use it
                     cv2.imwrite('image0.jpg', test)
-                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY)
+                    _, test = cv2.threshold(test, 10, 255, cv2.THRESH_BINARY) #maxes out every white value (helps with model prediction)
                     cv2.imwrite('image1.jpg', test)
                     kernel = np.ones((1, 1), np.uint8)  # Define a kernel for morphological operations
                     test = cv2.erode(test, kernel, iterations=10)   # Apply morphological operations to thin the edges
-                    test = test/255.0
-                    test = np.expand_dims(test, axis=0)
+                    test = test/255.0 #normalize
+                    test = np.expand_dims(test, axis=0) #extra dimension so the image can be fed to the model
                     with open('encoder.pickle','rb') as f:
-                        encode=pickle.load(f)
-                    prediction = model.predict(test)
-                    max_index = np.argmax(prediction)
+                        encode=pickle.load(f) #encoder to turn one-hot-encoded vector to animal names
+                    prediction = model.predict(test) #model prediction
+                    max_index = np.argmax(prediction) #highest probability index
                     one_hot_encoded = np.zeros_like(prediction)
                     one_hot_encoded[0][max_index] = 1
                     predicted_variables = encode.inverse_transform(np.reshape(one_hot_encoded,(1,-1)))[0][0]
